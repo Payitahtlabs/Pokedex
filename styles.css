@@ -1,0 +1,28 @@
+.search-container {
+    max-width: 420px;
+    margin: 1.5rem auto 0;
+}
+
+.search-group {
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.search-group .form-control {
+    border: none;
+    padding-inline: 1.25rem;
+}
+
+.search-group .form-control:focus {
+    box-shadow: none;
+}
+
+.search-group .btn {
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 1.5rem;
+}
