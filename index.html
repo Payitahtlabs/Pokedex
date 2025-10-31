@@ -15,7 +15,7 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <header class="text-center py-4">
+    <header class="text-center py-5">
         <div class="brand-title d-flex align-items-center justify-content-center gap-3">
             <img src="https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png" alt="PokéAPI Logo">
             <h1>Pokedex</h1>
@@ -27,20 +27,25 @@
                 <button class="btn btn-primary" id="searchButton" type="button" aria-label="Pokémon suchen">🔍</button>
             </div>
         </div>
-        </div>
     </header>
 
-    <main>
-        <section class="filter-section">
-            <!-- Filter Optionen kommen hier rein-->
+    <main class="main-shell py-5">
+        <section class="filter-section container mb-4">
+            <div class="placeholder-tile">
+                <span class="placeholder-label">Filterbereich folgt</span>
+            </div>
         </section>
 
-        <section class="pokemon-grid">
-            <!-- PokemonKarten kommen hier per JS rein-->
+        <section class="pokemon-section container mb-4">
+            <div class="pokemon-grid-placeholder" id="pokemon-grid">
+                <div class="placeholder-card">Hier erscheinen später die Pokémon-Karten.</div>
+            </div>
         </section>
 
-        <section class="navigation-section">
-            <!-- Seitennavigation und Load more Sektion -->
+        <section class="navigation-section container">
+            <div class="placeholder-tile">
+                <span class="placeholder-label">Navigation &amp; Pagination folgt</span>
+            </div>
         </section>
     </main>
 

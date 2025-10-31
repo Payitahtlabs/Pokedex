@@ -3,3 +3,12 @@
     margin: 0;
     padding: 0;
 }
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #f4f7ff 0%, #ffffff 60%);
+    color: #1f2933;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
