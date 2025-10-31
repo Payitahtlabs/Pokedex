@@ -1,11 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon API Projekt</title>
+    <title>Pokedex</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="standart.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="template.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    
+    <header class="text-center py-4">
+        <div class="brand-title d-flex align-items-center justify-content-center gap-3">
+            <img src="https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png" alt="PokéAPI Logo">
+            <h1>Pokedex</h1>
+        </div>
+        <p>Discover the world of Pokemon</p>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search Pokemon... (min 3 letters)">
+            <button id="searchButton">Search</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="filter-section">
+            <!-- Filter Optionen kommen hier rein-->
+        </section>
+
+        <section class="pokemon-grid">
+            <!-- PokemonKarten kommen hier per JS rein-->
+        </section>
+
+        <section class="navigation-section">
+            <!-- Seitennavigation und Load more Sektion -->
+        </section>
+    </main>
+
+    <footer class="text-center py-3">
+        <medium>© 2025 Pokédex Projekt</medium>
+    </footer>
+
 </body>
 </html>
