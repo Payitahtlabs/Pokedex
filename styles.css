@@ -27,6 +27,17 @@
     padding-inline: 1.5rem;
 }
 
+header.site-header,
+header.site-header h1,
+header.site-header p {
+    color: #ffffff;
+}
+
+header.site-header p {
+    font-size: 1.15rem;
+    margin-top: 0.5rem;
+}
+
 main.main-shell {
     flex: 1;
     background: rgba(255, 255, 255, 0.6);
