@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="standart.css">
     <link rel="stylesheet" href="style.css">
@@ -14,6 +18,7 @@
     <script src="template.js" defer></script>
     <script src="script.js" defer></script>
 </head>
+
 <body>
     <header class="site-header text-center py-5">
         <div class="brand-title d-flex align-items-center justify-content-center gap-3">
@@ -23,7 +28,8 @@
         <p>Discover the world of Pokemon</p>
         <div class="search-container mt-4">
             <div class="input-group search-group">
-                <input type="text" class="form-control" id="searchInput" placeholder="Search Pokemon... (min. 3 letters)" autocomplete="off">
+                <input type="text" class="form-control" id="searchInput"
+                    placeholder="Search Pokemon... (min. 3 letters)" autocomplete="off">
                 <button class="btn btn-primary" id="searchButton" type="button" aria-label="Pokémon suchen">🔍</button>
             </div>
         </div>
@@ -36,9 +42,9 @@
             </div>
         </section>
 
-        <section class="pokemon-section container mb-4">
-            <div class="pokemon-grid-placeholder" id="pokemon-grid">
-                <div class="placeholder-card">Hier erscheinen später die Pokémon-Karten.</div>
+        <section class="container mb-4">
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4" id="pokemon-grid">
+                <!-- Karten werden per JavaScript eingefügt -->
             </div>
         </section>
 
@@ -54,4 +60,5 @@
     </footer>
 
 </body>
+
 </html>
