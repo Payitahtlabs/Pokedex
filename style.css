@@ -114,6 +114,11 @@ main.main-shell {
     width: 100%;
     height: auto;
     filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.25));
+    transition: transform 0.25s ease;
+}
+
+.pokemon-card:hover img {
+    transform: scale(1.08);
 }
 
 #loadMoreButton:disabled {
