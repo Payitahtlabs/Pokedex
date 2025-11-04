@@ -43,14 +43,20 @@
         </section>
 
         <section class="container mb-4">
+            <div id="loading-indicator" class="loading-indicator text-center mb-4 d-none" role="status">
+                <div class="spinner-border text-light" aria-hidden="true"></div>
+                <p class="mt-2 mb-0 text-light">Pokémon werden geladen...</p>
+            </div>
             <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4" id="pokemon-grid">
-                <!-- Karten werden per JavaScript eingefügt -->
+                <!-- Hier werden die Pokémon-Karten eingefügt -->
             </div>
         </section>
 
         <section class="navigation-section container">
-            <div class="placeholder-tile">
-                <span class="placeholder-label">Navigation &amp; Pagination folgt</span>
+            <div class="text-center">
+                <button id="loadMoreButton" type="button" class="btn btn-outline-light px-4 py-2">
+                    Weitere Pokémon laden
+                </button>
             </div>
         </section>
     </main>
