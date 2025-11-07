@@ -6,6 +6,7 @@ let searchButton;
 let fullPokemonCatalog = [];
 let fullCatalogPromise = null;
 let activeSearchTerm = '';
+let searchDelayToken = null;
 let offset = 0;
 let isLoading = false;
 let cachedPokemon = [];
@@ -38,6 +39,7 @@ const loadingButtonLabel = 'Pokémon werden geladen...';
 const noMorePokemonLabel = 'Keine weiteren Pokémon';
 const minSearchLength = 3;
 const fullCatalogLimit = 2000;
+const searchDebounceDelay = 280;
 
 initPokedex();
 
@@ -86,12 +88,19 @@ function stopLoadingState() {
 
 function handleSearchInput() {
 	if (!searchInput) return;
-	applySearch(searchInput.value);
+	debounceSearch(searchInput.value);
 }
 
 function handleSearchButton() {
 	if (!searchInput) return;
 	applySearch(searchInput.value);
+}
+
+function debounceSearch(rawTerm) {
+	if (searchDelayToken) window.clearTimeout(searchDelayToken);
+	searchDelayToken = window.setTimeout(function triggerSearch() {
+		applySearch(rawTerm);
+	}, searchDebounceDelay);
 }
 
 async function applySearch(rawTerm) {
