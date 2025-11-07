@@ -66,6 +66,27 @@ main.main-shell {
     overflow: hidden;
 }
 
+.status-banner {
+    background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.92));
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 16px 32px rgba(220, 38, 38, 0.25);
+    text-align: center;
+}
+
+.status-banner .btn {
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    color: #ffffff;
+    min-width: 9rem;
+    margin-top: 0.5rem;
+}
+
+.status-banner .btn:hover {
+    border-color: #ffffff;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.85);
+}
+
 .pokemon-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);

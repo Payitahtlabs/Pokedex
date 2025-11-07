@@ -3,6 +3,9 @@ let loadMoreButton;
 let loadingIndicator;
 let searchInput;
 let searchButton;
+let errorBanner;
+let retryButton;
+let errorMessageText;
 let fullPokemonCatalog = [];
 let fullCatalogPromise = null;
 let activeSearchTerm = '';
@@ -44,16 +47,29 @@ const searchDebounceDelay = 280;
 initPokedex();
 
 function initPokedex() {
+	assignCoreElements();
+	if (!grid || !loadMoreButton || !loadingIndicator) return;
+	wireUiHandlers();
+	hideErrorBanner();
+	loadNextBatch();
+}
+
+function assignCoreElements() {
 	grid = document.getElementById('pokemon-grid');
 	loadMoreButton = document.getElementById('loadMoreButton');
 	loadingIndicator = document.getElementById('loading-indicator');
 	searchInput = document.getElementById('searchInput');
 	searchButton = document.getElementById('searchButton');
-	if (!grid || !loadMoreButton || !loadingIndicator) return;
+	errorBanner = document.getElementById('errorBanner');
+	retryButton = document.getElementById('retryButton');
+	errorMessageText = document.getElementById('errorMessage');
+}
+
+function wireUiHandlers() {
 	if (searchInput) searchInput.oninput = handleSearchInput;
 	if (searchButton) searchButton.onclick = handleSearchButton;
+	if (retryButton) retryButton.onclick = handleRetryClick;
 	loadMoreButton.onclick = loadNextBatch;
-	loadNextBatch();
 }
 
 async function loadNextBatch() {
@@ -71,6 +87,7 @@ async function loadNextBatch() {
 }
 
 function startLoadingState() {
+	hideErrorBanner();
 	isLoading = true;
 	setButtonDisabled(true);
 	setButtonText(loadingButtonLabel);
@@ -88,11 +105,13 @@ function stopLoadingState() {
 
 function handleSearchInput() {
 	if (!searchInput) return;
+	hideErrorBanner();
 	debounceSearch(searchInput.value);
 }
 
 function handleSearchButton() {
 	if (!searchInput) return;
+	hideErrorBanner();
 	applySearch(searchInput.value);
 }
 
@@ -114,6 +133,7 @@ async function applySearch(rawTerm) {
 		updateLoadMoreVisibility(term);
 	} catch (error) {
 		console.error('Fehler bei der Pokémon-Suche:', error);
+		showErrorBanner('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.');
 	}
 }
 
@@ -232,7 +252,27 @@ function handlePokemonBatch(pokemon) {
 
 function handleFetchError(error) {
 	console.error('Fehler beim Laden der Pokémon:', error);
-	alert('Beim Laden der Pokémon ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+	showErrorBanner('Beim Laden der Pokémon ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+}
+
+function handleRetryClick() {
+	if (isLoading) return;
+	hideErrorBanner();
+	loadNextBatch();
+}
+
+function showErrorBanner(message) {
+	if (!errorBanner) return;
+	if (errorMessageText) errorMessageText.textContent = message;
+	errorBanner.classList.remove('d-none');
+	if (errorBanner.scrollIntoView) {
+		errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	}
+}
+
+function hideErrorBanner() {
+	if (!errorBanner) return;
+	errorBanner.classList.add('d-none');
 }
 
 function setButtonDisabled(state) {
