@@ -14,27 +14,6 @@ let offset = 0;
 let isLoading = false;
 let cachedPokemon = [];
 let hasMorePokemon = true;
-const typeColors = {
-	bug: '#9dc985',
-	dark: '#595761',
-	dragon: '#0c6ac8',
-	electric: '#f9d74b',
-	fairy: '#f5a8ce',
-	fighting: '#ce3d32',
-	fire: '#ff9d55',
-	flying: '#88aadd',
-	ghost: '#5269ad',
-	grass: '#5dbb63',
-	ground: '#d87c4a',
-	ice: '#74cfc0',
-	normal: '#a9a778',
-	poison: '#b66fa3',
-	psychic: '#f9898a',
-	rock: '#c5b489',
-	steel: '#5a8ea2',
-	water: '#4d8ede',
-	default: '#f0f4f8',
-};
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
 const loadButtonLabel = 'Weitere Pokémon laden';
@@ -46,6 +25,7 @@ const searchDebounceDelay = 280;
 
 initPokedex();
 
+// Richtet Grundelemente und Ereignisse ein und startet den Erst-Ladevorgang.
 function initPokedex() {
 	assignCoreElements();
 	if (!grid || !loadMoreButton || !loadingIndicator) return;
@@ -54,6 +34,7 @@ function initPokedex() {
 	loadNextBatch();
 }
 
+// Sammelt und speichert die wichtigsten DOM-Elemente der Anwendung.
 function assignCoreElements() {
 	grid = document.getElementById('pokemon-grid');
 	loadMoreButton = document.getElementById('loadMoreButton');
@@ -65,6 +46,7 @@ function assignCoreElements() {
 	errorMessageText = document.getElementById('errorMessage');
 }
 
+// Verknüpft Eingabefelder, Buttons und Retry-Aktionen mit ihren Handlern.
 function wireUiHandlers() {
 	if (searchInput) searchInput.oninput = handleSearchInput;
 	if (searchButton) searchButton.onclick = handleSearchButton;
@@ -72,6 +54,7 @@ function wireUiHandlers() {
 	loadMoreButton.onclick = loadNextBatch;
 }
 
+// Lädt den nächsten Pokémon-Satz und kümmert sich um Ladezustand sowie Fehler.
 async function loadNextBatch() {
 	if (isLoading) return;
 	startLoadingState();
@@ -86,6 +69,7 @@ async function loadNextBatch() {
 	}
 }
 
+// Zeigt Ladefeedback an und deaktiviert den Mehr-Laden-Button.
 function startLoadingState() {
 	hideErrorBanner();
 	isLoading = true;
@@ -94,6 +78,7 @@ function startLoadingState() {
 	showLoadingIndicator();
 }
 
+// Reaktiviert den Mehr-Laden-Button und blendet den Spinner aus.
 function stopLoadingState() {
 	hideLoadingIndicator();
 	if (hasMorePokemon) {
@@ -103,18 +88,21 @@ function stopLoadingState() {
 	isLoading = false;
 }
 
+// Entprellt Suchänderungen und blendet sichtbare Fehlermeldungen aus.
 function handleSearchInput() {
 	if (!searchInput) return;
 	hideErrorBanner();
 	debounceSearch(searchInput.value);
 }
 
+// Startet die Suche sofort beim Klick auf den Suchbutton.
 function handleSearchButton() {
 	if (!searchInput) return;
 	hideErrorBanner();
 	applySearch(searchInput.value);
 }
 
+// Verzögert die Suchausführung, um unnötige API-Aufrufe zu vermeiden.
 function debounceSearch(rawTerm) {
 	if (searchDelayToken) window.clearTimeout(searchDelayToken);
 	searchDelayToken = window.setTimeout(function triggerSearch() {
@@ -122,6 +110,7 @@ function debounceSearch(rawTerm) {
 	}, searchDebounceDelay);
 }
 
+// Filtert Pokémon nach Namen und rendert passende Karten.
 async function applySearch(rawTerm) {
 	if (!grid) return;
 	const term = normalizeSearchTerm(rawTerm);
@@ -137,11 +126,13 @@ async function applySearch(rawTerm) {
 	}
 }
 
+// Kürzt und kleinschreibt den Suchbegriff für verlässliche Vergleiche.
 function normalizeSearchTerm(term) {
 	if (!term) return '';
 	return term.trim().toLowerCase();
 }
 
+// Liefert gecachte Pokémon oder lädt fehlende Treffer nach.
 async function filterPokemonByName(term) {
 	if (!term || term.length < minSearchLength) return cachedPokemon;
 	const catalog = await loadFullPokemonCatalog();
@@ -157,10 +148,12 @@ async function filterPokemonByName(term) {
 	return sortPokemonById(combined);
 }
 
+// Filtert Katalogeinträge, deren Namen den Suchbegriff enthalten.
 function collectCatalogMatches(catalog, term) {
 	return catalog.filter((candidate) => candidate && candidate.name && candidate.name.includes(term));
 }
 
+// Teilt Treffer in bereits gecachte und noch fehlende Einträge.
 function splitMatchesByCache(matches) {
 	const cached = [];
 	const missing = [];
@@ -173,54 +166,21 @@ function splitMatchesByCache(matches) {
 	return { cached: cached, missing: missing };
 }
 
+// Erstellt eine nach Pokémon-ID sortierte Kopie.
 function sortPokemonById(list) {
 	const copy = list.slice();
 	copy.sort((a, b) => a.id - b.id);
 	return copy;
 }
 
+// Blendet den Mehr-Laden-Button während einer aktiven Suche aus.
 function updateLoadMoreVisibility(term) {
 	if (!loadMoreButton) return;
 	const isSearching = term && term.length >= minSearchLength;
 	loadMoreButton.style.display = isSearching ? 'none' : '';
 }
 
-async function loadFullPokemonCatalog() {
-	if (fullPokemonCatalog.length) return fullPokemonCatalog;
-	if (!fullCatalogPromise) {
-		fullCatalogPromise = fetchPokemonList(0, fullCatalogLimit);
-	}
-	try {
-		fullPokemonCatalog = await fullCatalogPromise;
-		return fullPokemonCatalog;
-	} catch (error) {
-		fullCatalogPromise = null;
-		throw error;
-	}
-}
-
-function findPokemonInCacheByName(name) {
-	if (!name) return null;
-	const target = name.toUpperCase();
-	return cachedPokemon.find((entry) => entry && entry.name === target) || null;
-}
-
-function mergePokemonIntoCache(pokemonList) {
-	if (!pokemonList) return [];
-	const additions = [];
-	pokemonList.forEach((entry) => {
-		if (!entry || typeof entry.id !== 'number') return;
-		if (isPokemonInCache(entry.id)) return;
-		cachedPokemon.push(entry);
-		additions.push(entry);
-	});
-	return additions;
-}
-
-function isPokemonInCache(id) {
-	return cachedPokemon.some((entry) => entry && entry.id === id);
-}
-
+// Rendert neue Karten und aktualisiert den Paging-Zustand.
 function handlePokemonBatch(pokemon) {
 	const newEntries = mergePokemonIntoCache(pokemon);
 	offset += pokemon.length;
@@ -234,125 +194,15 @@ function handlePokemonBatch(pokemon) {
 	}
 }
 
+// Protokolliert Ladefehler und zeigt den Fehlerbanner mit Retry-Hinweis.
 function handleFetchError(error) {
 	console.error('Fehler beim Laden der Pokémon:', error);
 	showErrorBanner('Beim Laden der Pokémon ist ein Fehler aufgetreten. Bitte versuche es erneut.');
 }
 
+// Startet den Ladeversuch neu, sobald der Retry-Button gedrückt wird.
 function handleRetryClick() {
 	if (isLoading) return;
 	hideErrorBanner();
 	loadNextBatch();
-}
-
-function showErrorBanner(message) {
-	if (!errorBanner) return;
-	if (errorMessageText) errorMessageText.textContent = message;
-	errorBanner.classList.remove('d-none');
-	if (errorBanner.scrollIntoView) {
-		errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-	}
-}
-
-function hideErrorBanner() {
-	if (!errorBanner) return;
-	errorBanner.classList.add('d-none');
-}
-
-function setButtonDisabled(state) {
-	loadMoreButton.disabled = state;
-}
-
-function setButtonText(text) {
-	loadMoreButton.textContent = text;
-}
-
-function showLoadingIndicator() {
-	const message = loadingIndicator.querySelector('p');
-	if (message) message.textContent = 'Pokémon werden geladen...';
-	loadingIndicator.classList.remove('d-none');
-}
-
-function hideLoadingIndicator() {
-	loadingIndicator.classList.add('d-none');
-}
-
-async function fetchPokemonList(offsetValue, limit) {
-	const url = API_URL + '?offset=' + offsetValue + '&limit=' + limit;
-	const response = await fetch(url);
-	if (!response.ok) throw new Error('HTTP-Code ' + response.status);
-	const data = await response.json();
-	return data.results || [];
-}
-
-async function loadPokemonDetails(pokemonList) {
-	if (!pokemonList || !pokemonList.length) return [];
-	const detailPromises = pokemonList
-		.filter((entry) => entry && entry.url)
-		.map((entry) => fetchPokemonDetails(entry.url));
-	return Promise.all(detailPromises);
-}
-
-async function fetchPokemonDetails(url) {
-	const response = await fetch(url);
-	if (!response.ok) throw new Error('Detail-Code ' + response.status);
-	const data = await response.json();
-	return simplifyPokemonData(data);
-}
-
-function simplifyPokemonData(data) {
-	const image = selectPokemonImage(data);
-	const types = extractPokemonTypes(data);
-	const mainType = types.length ? types[0].toLowerCase() : 'default';
-	return {
-		id: data.id,
-		name: (data.name || 'Unbekannt').toUpperCase(),
-		image: image,
-		weight: formatWeight(data.weight),
-		types: types,
-		background: buildCardBackground(resolveTypeColor(mainType)),
-	};
-}
-
-function selectPokemonImage(data) {
-	if (data.sprites && data.sprites.other && data.sprites.other['official-artwork']) {
-		return data.sprites.other['official-artwork'].front_default;
-	}
-	if (data.sprites) return data.sprites.front_default;
-	return '';
-}
-
-function extractPokemonTypes(data) {
-	if (!data.types) return [];
-	return data.types
-		.map((slot) => (slot.type && slot.type.name ? capitalize(slot.type.name) : null))
-		.filter((name) => name);
-}
-
-function capitalize(name) {
-	if (!name) return '';
-	return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
-function formatWeight(weight) {
-	if (!weight && weight !== 0) return '?';
-	return (weight / 10).toFixed(1);
-}
-
-function resolveTypeColor(type) {
-	const key = type || 'default';
-	return typeColors[key] || typeColors.default;
-}
-
-function buildCardBackground(color) {
-	return 'linear-gradient(135deg, ' + color + ' 0%, rgba(255,255,255,0.9) 100%)';
-}
-
-function renderPokemonCards(target, pokemonList, reset) {
-	if (reset) target.innerHTML = '';
-	if (!window.PokedexTemplates || !window.PokedexTemplates.createPokemonCard) return;
-	pokemonList.forEach((pokemon) => {
-		const cardMarkup = window.PokedexTemplates.createPokemonCard(pokemon);
-		target.insertAdjacentHTML('beforeend', cardMarkup);
-	});
 }
