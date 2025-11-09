@@ -158,13 +158,7 @@ async function filterPokemonByName(term) {
 }
 
 function collectCatalogMatches(catalog, term) {
-	const matches = [];
-	for (let i = 0; i < catalog.length; i += 1) {
-		const candidate = catalog[i];
-		if (!candidate || !candidate.name) continue;
-		if (candidate.name.indexOf(term) !== -1) matches.push(candidate);
-	}
-	return matches;
+	return catalog.filter((candidate) => candidate && candidate.name && candidate.name.includes(term));
 }
 
 function splitMatchesByCache(matches) {
@@ -181,9 +175,7 @@ function splitMatchesByCache(matches) {
 
 function sortPokemonById(list) {
 	const copy = list.slice();
-	copy.sort(function compareById(a, b) {
-		return a.id - b.id;
-	});
+	copy.sort((a, b) => a.id - b.id);
 	return copy;
 }
 
@@ -210,31 +202,23 @@ async function loadFullPokemonCatalog() {
 function findPokemonInCacheByName(name) {
 	if (!name) return null;
 	const target = name.toUpperCase();
-	for (let i = 0; i < cachedPokemon.length; i += 1) {
-		const entry = cachedPokemon[i];
-		if (entry && entry.name === target) return entry;
-	}
-	return null;
+	return cachedPokemon.find((entry) => entry && entry.name === target) || null;
 }
 
 function mergePokemonIntoCache(pokemonList) {
+	if (!pokemonList) return [];
 	const additions = [];
-	if (!pokemonList) return additions;
-	for (let i = 0; i < pokemonList.length; i += 1) {
-		const entry = pokemonList[i];
-		if (!entry || typeof entry.id !== 'number') continue;
-		if (isPokemonInCache(entry.id)) continue;
+	pokemonList.forEach((entry) => {
+		if (!entry || typeof entry.id !== 'number') return;
+		if (isPokemonInCache(entry.id)) return;
 		cachedPokemon.push(entry);
 		additions.push(entry);
-	}
+	});
 	return additions;
 }
 
 function isPokemonInCache(id) {
-	for (let i = 0; i < cachedPokemon.length; i += 1) {
-		if (cachedPokemon[i] && cachedPokemon[i].id === id) return true;
-	}
-	return false;
+	return cachedPokemon.some((entry) => entry && entry.id === id);
 }
 
 function handlePokemonBatch(pokemon) {
@@ -302,11 +286,10 @@ async function fetchPokemonList(offsetValue, limit) {
 }
 
 async function loadPokemonDetails(pokemonList) {
-	const detailPromises = [];
-	for (let i = 0; i < pokemonList.length; i += 1) {
-		const entry = pokemonList[i];
-		if (entry && entry.url) detailPromises.push(fetchPokemonDetails(entry.url));
-	}
+	if (!pokemonList || !pokemonList.length) return [];
+	const detailPromises = pokemonList
+		.filter((entry) => entry && entry.url)
+		.map((entry) => fetchPokemonDetails(entry.url));
 	return Promise.all(detailPromises);
 }
 
@@ -340,14 +323,10 @@ function selectPokemonImage(data) {
 }
 
 function extractPokemonTypes(data) {
-	const list = [];
-	if (!data.types) return list;
-	for (let i = 0; i < data.types.length; i += 1) {
-		if (data.types[i].type && data.types[i].type.name) {
-			list.push(capitalize(data.types[i].type.name));
-		}
-	}
-	return list;
+	if (!data.types) return [];
+	return data.types
+		.map((slot) => (slot.type && slot.type.name ? capitalize(slot.type.name) : null))
+		.filter((name) => name);
 }
 
 function capitalize(name) {
@@ -372,8 +351,8 @@ function buildCardBackground(color) {
 function renderPokemonCards(target, pokemonList, reset) {
 	if (reset) target.innerHTML = '';
 	if (!window.PokedexTemplates || !window.PokedexTemplates.createPokemonCard) return;
-	for (let i = 0; i < pokemonList.length; i += 1) {
-		const cardMarkup = window.PokedexTemplates.createPokemonCard(pokemonList[i]);
+	pokemonList.forEach((pokemon) => {
+		const cardMarkup = window.PokedexTemplates.createPokemonCard(pokemon);
 		target.insertAdjacentHTML('beforeend', cardMarkup);
-	}
+	});
 }
