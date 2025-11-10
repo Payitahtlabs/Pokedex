@@ -66,12 +66,39 @@ main.main-shell {
     overflow: hidden;
 }
 
+
 .status-banner {
-    background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.92));
     border: none;
     color: #ffffff;
-    box-shadow: 0 16px 32px rgba(220, 38, 38, 0.25);
     text-align: center;
+}
+
+.status-banner--error {
+    background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.92));
+    box-shadow: 0 16px 32px rgba(220, 38, 38, 0.25);
+}
+
+.status-banner--warning {
+    background: linear-gradient(135deg, rgba(252, 211, 77, 0.9), rgba(251, 191, 36, 0.88));
+    color: #1f2937;
+    box-shadow: 0 14px 28px rgba(217, 119, 6, 0.22);
+    border: 1px solid rgba(217, 119, 6, 0.35);
+    font-weight: 600;
+}
+
+@keyframes fadeInSoft {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__fadeIn {
+    animation: fadeInSoft 0.45s ease forwards;
 }
 
 .status-banner .btn {

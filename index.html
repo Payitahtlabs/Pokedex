@@ -50,13 +50,13 @@
                 <div class="spinner-border text-light" aria-hidden="true"></div>
                 <p class="mt-2 mb-0 text-light">Pokémon werden geladen...</p>
             </div>
-            <div id="errorBanner" class="alert alert-danger d-none status-banner" role="alert">
+            <div id="errorBanner" class="alert alert-danger d-none status-banner status-banner--error" role="alert">
                 <div class="d-flex flex-column align-items-center gap-2 text-center">
                     <span id="errorMessage">Beim Laden der Pokémon ist ein Fehler aufgetreten.</span>
                     <button id="retryButton" type="button" class="btn btn-outline-light btn-sm">Erneut versuchen</button>
                 </div>
             </div>
-            <div id="noResultsMessage" class="alert alert-warning d-none status-banner" role="status">
+            <div id="noResultsMessage" class="alert alert-warning d-none status-banner status-banner--warning" role="status">
                 Keine Pokémon gefunden. Bitte passe deine Suche an.
             </div>
             <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4" id="pokemon-grid">

@@ -40,12 +40,14 @@ function hideLoadingIndicator() {
 function showNoResultsMessage() {
 	if (!noResultsMessage) return;
 	noResultsMessage.classList.remove('d-none');
+	noResultsMessage.classList.add('animate__fadeIn');
 }
 
 // Blendet den Hinweis auf fehlende Treffer aus.
 function hideNoResultsMessage() {
 	if (!noResultsMessage) return;
 	noResultsMessage.classList.add('d-none');
+	noResultsMessage.classList.remove('animate__fadeIn');
 }
 
 // Rendert Karten-Markup für eine Pokémon-Liste ins Grid.
