@@ -15,6 +15,7 @@ let offset = 0;
 let isLoading = false;
 let cachedPokemon = [];
 let hasMorePokemon = true;
+let paginatedPokemon = [];
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
 const loadButtonLabel = 'Weitere Pokémon laden';
@@ -121,16 +122,35 @@ async function applySearch(rawTerm) {
 	if (!grid) return;
 	const term = normalizeSearchTerm(rawTerm);
 	activeSearchTerm = term;
+	if (!term || term.length < minSearchLength) return resetSearchToCached(term);
 	try {
 		const filtered = await filterPokemonByName(term);
 		if (activeSearchTerm !== term) return;
-		renderPokemonCards(grid, filtered, true);
-		updateLoadMoreVisibility(term);
-		syncNoResultsMessage(term, filtered);
+		renderSearchResults(term, filtered);
 	} catch (error) {
-		console.error('Fehler bei der Pokémon-Suche:', error);
-		showErrorBanner('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+		handleSearchError(error);
 	}
+}
+
+// Setzt die Ergebnisliste auf die vorhandene Cache-Auswahl zurück.
+function resetSearchToCached(term) {
+	const baseList = paginatedPokemon.length ? paginatedPokemon : cachedPokemon;
+	renderPokemonCards(grid, baseList, true);
+	updateLoadMoreVisibility(term);
+	hideNoResultsMessage();
+}
+
+// Rendert Treffer, aktualisiert Button und blendet Hinweise passend ein.
+function renderSearchResults(term, list) {
+	renderPokemonCards(grid, list, true);
+	updateLoadMoreVisibility(term);
+	syncNoResultsMessage(term, list);
+}
+
+// Protokolliert Suchfehler und zeigt den Fehlerbanner an.
+function handleSearchError(error) {
+	console.error('Fehler bei der Pokémon-Suche:', error);
+	showErrorBanner('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.');
 }
 
 // Kürzt und kleinschreibt den Suchbegriff für verlässliche Vergleiche.
@@ -203,6 +223,7 @@ function handlePokemonBatch(pokemon) {
 	const newEntries = mergePokemonIntoCache(pokemon);
 	offset += pokemon.length;
 	if (newEntries.length) {
+		paginatedPokemon = paginatedPokemon.concat(newEntries);
 		renderPokemonCards(grid, newEntries, false);
 	}
 	if (pokemon.length < POKEMON_LIMIT) {
