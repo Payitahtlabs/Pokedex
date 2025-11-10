@@ -6,6 +6,7 @@ let searchButton;
 let errorBanner;
 let retryButton;
 let errorMessageText;
+let noResultsMessage;
 let fullPokemonCatalog = [];
 let fullCatalogPromise = null;
 let activeSearchTerm = '';
@@ -31,6 +32,7 @@ function initPokedex() {
 	if (!grid || !loadMoreButton || !loadingIndicator) return;
 	wireUiHandlers();
 	hideErrorBanner();
+	hideNoResultsMessage();
 	loadNextBatch();
 }
 
@@ -44,6 +46,7 @@ function assignCoreElements() {
 	errorBanner = document.getElementById('errorBanner');
 	retryButton = document.getElementById('retryButton');
 	errorMessageText = document.getElementById('errorMessage');
+	noResultsMessage = document.getElementById('noResultsMessage');
 }
 
 // Verknüpft Eingabefelder, Buttons und Retry-Aktionen mit ihren Handlern.
@@ -72,6 +75,7 @@ async function loadNextBatch() {
 // Zeigt Ladefeedback an und deaktiviert den Mehr-Laden-Button.
 function startLoadingState() {
 	hideErrorBanner();
+	hideNoResultsMessage();
 	isLoading = true;
 	setButtonDisabled(true);
 	setButtonText(loadingButtonLabel);
@@ -92,6 +96,7 @@ function stopLoadingState() {
 function handleSearchInput() {
 	if (!searchInput) return;
 	hideErrorBanner();
+	hideNoResultsMessage();
 	debounceSearch(searchInput.value);
 }
 
@@ -99,6 +104,7 @@ function handleSearchInput() {
 function handleSearchButton() {
 	if (!searchInput) return;
 	hideErrorBanner();
+	hideNoResultsMessage();
 	applySearch(searchInput.value);
 }
 
@@ -120,6 +126,7 @@ async function applySearch(rawTerm) {
 		if (activeSearchTerm !== term) return;
 		renderPokemonCards(grid, filtered, true);
 		updateLoadMoreVisibility(term);
+		syncNoResultsMessage(term, filtered);
 	} catch (error) {
 		console.error('Fehler bei der Pokémon-Suche:', error);
 		showErrorBanner('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.');
@@ -180,6 +187,17 @@ function updateLoadMoreVisibility(term) {
 	loadMoreButton.style.display = isSearching ? 'none' : '';
 }
 
+// Schaltet die "Keine Treffer"-Hinweisfläche passend zur Suche um.
+function syncNoResultsMessage(term, results) {
+	const isActiveSearch = term && term.length >= minSearchLength;
+	if (!isActiveSearch) {
+		hideNoResultsMessage();
+		return;
+	}
+	if (results && results.length) hideNoResultsMessage();
+	else showNoResultsMessage();
+}
+
 // Rendert neue Karten und aktualisiert den Paging-Zustand.
 function handlePokemonBatch(pokemon) {
 	const newEntries = mergePokemonIntoCache(pokemon);
@@ -197,6 +215,7 @@ function handlePokemonBatch(pokemon) {
 // Protokolliert Ladefehler und zeigt den Fehlerbanner mit Retry-Hinweis.
 function handleFetchError(error) {
 	console.error('Fehler beim Laden der Pokémon:', error);
+	hideNoResultsMessage();
 	showErrorBanner('Beim Laden der Pokémon ist ein Fehler aufgetreten. Bitte versuche es erneut.');
 }
 
@@ -204,5 +223,6 @@ function handleFetchError(error) {
 function handleRetryClick() {
 	if (isLoading) return;
 	hideErrorBanner();
+	hideNoResultsMessage();
 	loadNextBatch();
 }

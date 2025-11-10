@@ -36,6 +36,18 @@ function hideLoadingIndicator() {
 	loadingIndicator.classList.add('d-none');
 }
 
+// Zeigt den Hinweis, dass keine Pokémon gefunden wurden.
+function showNoResultsMessage() {
+	if (!noResultsMessage) return;
+	noResultsMessage.classList.remove('d-none');
+}
+
+// Blendet den Hinweis auf fehlende Treffer aus.
+function hideNoResultsMessage() {
+	if (!noResultsMessage) return;
+	noResultsMessage.classList.add('d-none');
+}
+
 // Rendert Karten-Markup für eine Pokémon-Liste ins Grid.
 function renderPokemonCards(target, pokemonList, reset) {
 	if (reset) target.innerHTML = '';
