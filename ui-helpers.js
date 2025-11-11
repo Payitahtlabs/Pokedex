@@ -54,6 +54,9 @@ function hideNoResultsMessage() {
 function renderPokemonCards(target, pokemonList, reset) {
 	if (reset) target.innerHTML = '';
 	if (!window.PokedexTemplates || !window.PokedexTemplates.createPokemonCard) return;
+	if (typeof updateCurrentDisplayState === 'function') {
+		updateCurrentDisplayState(pokemonList, reset);
+	}
 	pokemonList.forEach((pokemon) => {
 		const cardMarkup = window.PokedexTemplates.createPokemonCard(pokemon);
 		target.insertAdjacentHTML('beforeend', cardMarkup);

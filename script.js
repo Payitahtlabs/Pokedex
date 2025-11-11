@@ -16,6 +16,9 @@ let isLoading = false;
 let cachedPokemon = [];
 let hasMorePokemon = true;
 let paginatedPokemon = [];
+let currentDisplayList = [];
+let overlayRoot = null;
+let currentOverlayIndex = -1;
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
 const loadButtonLabel = 'Weitere Pokémon laden';
@@ -32,6 +35,7 @@ function initPokedex() {
 	assignCoreElements();
 	if (!grid || !loadMoreButton || !loadingIndicator) return;
 	wireUiHandlers();
+	setupOverlaySupport();
 	hideErrorBanner();
 	hideNoResultsMessage();
 	loadNextBatch();
@@ -56,6 +60,7 @@ function wireUiHandlers() {
 	if (searchButton) searchButton.onclick = handleSearchButton;
 	if (retryButton) retryButton.onclick = handleRetryClick;
 	loadMoreButton.onclick = loadNextBatch;
+	if (grid) grid.onclick = handlePokemonCardClick;
 }
 
 // Lädt den nächsten Pokémon-Satz und kümmert sich um Ladezustand sowie Fehler.
@@ -246,4 +251,129 @@ function handleRetryClick() {
 	hideErrorBanner();
 	hideNoResultsMessage();
 	loadNextBatch();
+}
+
+// Hält fest, welche Pokémon gerade sichtbar sind.
+function updateCurrentDisplayState(list, reset) {
+	if (reset) {
+		currentDisplayList = Array.isArray(list) ? list.slice() : [];
+		return;
+	}
+	if (!Array.isArray(list) || !list.length) return;
+	currentDisplayList = currentDisplayList.concat(list);
+}
+
+// Bereitet Overlay-Container und Tastatursteuerung vor.
+function setupOverlaySupport() {
+	const root = ensureOverlayRoot();
+	if (!root) return;
+	document.onkeydown = handleOverlayKeydown;
+}
+
+// Erzeugt den Overlay-Container bei Bedarf.
+function ensureOverlayRoot() {
+	if (overlayRoot) return overlayRoot;
+	if (!document || !document.body) return null;
+	const root = document.getElementById('pokemonOverlayRoot');
+	if (!root) return null;
+	root.onclick = handleOverlayInteraction;
+	overlayRoot = root;
+	return overlayRoot;
+}
+
+// Öffnet das Overlay für das angeklickte Pokémon.
+function handlePokemonCardClick(event) {
+	const origin = event.target instanceof Element ? event.target : null;
+	if (!origin) return;
+	const card = origin.closest('.pokemon-card');
+	if (!card || !grid || !grid.contains(card)) return;
+	const idValue = Number(card.getAttribute('data-pokemon-id'));
+	if (!idValue) return;
+	const index = findPokemonIndexInDisplay(idValue);
+	if (index < 0) return;
+	openPokemonOverlay(index);
+}
+
+// Sucht den Index eines Pokémon in der sichtbaren Liste.
+function findPokemonIndexInDisplay(id) {
+	if (!currentDisplayList.length) return -1;
+	for (let i = 0; i < currentDisplayList.length; i += 1) {
+		const entry = currentDisplayList[i];
+		if (entry && entry.id === id) return i;
+	}
+	return -1;
+}
+
+// Öffnet das Overlay und sperrt den Hintergrund.
+function openPokemonOverlay(index) {
+	if (!renderOverlayContent(index)) return;
+	const root = ensureOverlayRoot();
+	if (!root) return;
+	root.classList.add('is-active');
+	lockBodyScroll(true);
+}
+
+// Rendert den Overlay-Inhalt für einen Index.
+function renderOverlayContent(index) {
+	if (!window.PokedexTemplates || !window.PokedexTemplates.createPokemonOverlay) return false;
+	if (!currentDisplayList.length || index < 0 || index >= currentDisplayList.length) return false;
+	const root = ensureOverlayRoot();
+	if (!root) return false;
+	const pokemon = currentDisplayList[index];
+	currentOverlayIndex = index;
+	root.innerHTML = window.PokedexTemplates.createPokemonOverlay(pokemon);
+	syncOverlayNavState();
+	return true;
+}
+
+// Passt die Navigationsbuttons dem Index an.
+function syncOverlayNavState() {
+	if (!overlayRoot) return;
+	const prev = overlayRoot.querySelector('.pokemon-overlay__nav--prev');
+	const next = overlayRoot.querySelector('.pokemon-overlay__nav--next');
+	if (prev) prev.disabled = currentOverlayIndex <= 0;
+	if (next) next.disabled = currentOverlayIndex >= currentDisplayList.length - 1;
+}
+
+// Schliesst das Overlay und gibt den Hintergrund frei.
+function closePokemonOverlay() {
+	if (!overlayRoot) return;
+	overlayRoot.classList.remove('is-active');
+	overlayRoot.innerHTML = '';
+	currentOverlayIndex = -1;
+	lockBodyScroll(false);
+}
+
+// Springt im Overlay zum nächsten oder vorherigen Pokémon.
+function changeOverlayPokemon(step) {
+	const nextIndex = currentOverlayIndex + step;
+	if (!renderOverlayContent(nextIndex)) return;
+}
+
+// Reagiert auf Klicks innerhalb des Overlays.
+function handleOverlayInteraction(event) {
+	if (currentOverlayIndex === -1) return;
+	const origin = event.target instanceof Element ? event.target : null;
+	if (!origin) return;
+	if (origin.classList.contains('pokemon-overlay__close')) return closePokemonOverlay();
+	if (origin.classList.contains('pokemon-overlay__backdrop')) return closePokemonOverlay();
+	const prev = origin.closest('.pokemon-overlay__nav--prev');
+	if (prev) return changeOverlayPokemon(-1);
+	const next = origin.closest('.pokemon-overlay__nav--next');
+	if (next) return changeOverlayPokemon(1);
+}
+
+// Ermöglicht ESC-Schließen und Pfeiltasten-Steuerung.
+function handleOverlayKeydown(event) {
+	if (currentOverlayIndex === -1) return;
+	if (event.key === 'Escape') closePokemonOverlay();
+	else if (event.key === 'ArrowLeft') changeOverlayPokemon(-1);
+	else if (event.key === 'ArrowRight') changeOverlayPokemon(1);
+}
+
+// Sperrt oder erlaubt Scrollen des Body-Elements.
+function lockBodyScroll(state) {
+	if (!document || !document.body) return;
+	const method = state ? 'add' : 'remove';
+	document.body.classList[method]('overlay-open');
 }

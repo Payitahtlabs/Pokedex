@@ -101,6 +101,135 @@ main.main-shell {
     animation: fadeInSoft 0.45s ease forwards;
 }
 
+body.overlay-open {
+    overflow: hidden;
+}
+
+.pokemon-overlay-root {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    display: none;
+    padding: 2rem 1rem;
+}
+
+.pokemon-overlay-root.is-active {
+    display: block;
+}
+
+.pokemon-overlay {
+    position: relative;
+    min-height: 100%;
+}
+
+.pokemon-overlay__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+}
+
+.pokemon-overlay__frame {
+    position: relative;
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1.5rem;
+    z-index: 1;
+}
+
+.pokemon-overlay__card {
+    flex: 1 1 auto;
+    border-radius: 1.5rem;
+    overflow: hidden;
+}
+
+.pokemon-overlay__hero {
+    padding: 2.75rem 2rem 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pokemon-overlay__hero img {
+    max-width: 260px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 18px 30px rgba(15, 23, 42, 0.35));
+}
+
+.pokemon-overlay__types .badge {
+    margin: 0 0.25rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #1f2937;
+}
+
+.pokemon-overlay__details {
+    min-height: 160px;
+}
+
+.pokemon-overlay__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    opacity: 0.8;
+}
+
+.pokemon-overlay__close:hover,
+.pokemon-overlay__close:focus {
+    opacity: 1;
+    text-decoration: none;
+}
+
+.pokemon-overlay__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.22);
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    z-index: 2;
+}
+
+.pokemon-overlay__nav--prev {
+    left: -1.75rem;
+}
+
+.pokemon-overlay__nav--next {
+    right: -1.75rem;
+}
+
+.pokemon-overlay__nav[disabled] {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+@media (max-width: 992px) {
+    .pokemon-overlay__frame {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .pokemon-overlay__nav {
+        position: static;
+        transform: none;
+        align-self: center;
+    }
+}
+
 .status-banner .btn {
     border: 1px solid rgba(255, 255, 255, 0.65);
     color: #ffffff;
