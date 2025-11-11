@@ -361,6 +361,9 @@ function handleOverlayInteraction(event) {
 	if (prev) return changeOverlayPokemon(-1);
 	const next = origin.closest('.pokemon-overlay__nav--next');
 	if (next) return changeOverlayPokemon(1);
+	const insideCard = origin.closest('.pokemon-overlay__card');
+	const insideNav = origin.closest('.pokemon-overlay__nav');
+	if (!insideCard && !insideNav) return closePokemonOverlay();
 }
 
 // Ermöglicht ESC-Schließen und Pfeiltasten-Steuerung.
