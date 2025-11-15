@@ -19,6 +19,7 @@ let paginatedPokemon = [];
 let currentDisplayList = [];
 let overlayRoot = null;
 let currentOverlayIndex = -1;
+let currentOverlayTab = 'about';
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
 const loadButtonLabel = 'Weitere Pokémon laden';
@@ -313,7 +314,7 @@ function openPokemonOverlay(index) {
 	lockBodyScroll(true);
 }
 
-// Rendert den Overlay-Inhalt für einen Index.
+// Rendert den Overlay-Inhalt und übernimmt den zuletzt aktiven Tab.
 function renderOverlayContent(index) {
 	if (!window.PokedexTemplates || !window.PokedexTemplates.createPokemonOverlay) return false;
 	if (!currentDisplayList.length || index < 0 || index >= currentDisplayList.length) return false;
@@ -321,7 +322,9 @@ function renderOverlayContent(index) {
 	if (!root) return false;
 	const pokemon = currentDisplayList[index];
 	currentOverlayIndex = index;
-	root.innerHTML = window.PokedexTemplates.createPokemonOverlay(pokemon);
+	const activeTab = validateOverlayTab(currentOverlayTab);
+	currentOverlayTab = activeTab;
+	root.innerHTML = window.PokedexTemplates.createPokemonOverlay(pokemon, activeTab);
 	syncOverlayNavState();
 	return true;
 }
@@ -341,6 +344,7 @@ function closePokemonOverlay() {
 	overlayRoot.classList.remove('is-active');
 	overlayRoot.innerHTML = '';
 	currentOverlayIndex = -1;
+	currentOverlayTab = 'about';
 	lockBodyScroll(false);
 }
 
@@ -350,20 +354,62 @@ function changeOverlayPokemon(step) {
 	if (!renderOverlayContent(nextIndex)) return;
 }
 
-// Reagiert auf Klicks innerhalb des Overlays.
+// Reagiert auf Überlagerungs-Klicks, inklusive Navigation und Tab-Wechsel.
 function handleOverlayInteraction(event) {
 	if (currentOverlayIndex === -1) return;
-	const origin = event.target instanceof Element ? event.target : null;
+	const origin = getInteractionTarget(event);
 	if (!origin) return;
-	if (origin.classList.contains('pokemon-overlay__close')) return closePokemonOverlay();
-	if (origin.classList.contains('pokemon-overlay__backdrop')) return closePokemonOverlay();
+	if (shouldCloseOverlay(origin)) return closePokemonOverlay();
+	if (handleOverlayNavigation(origin)) return;
+	if (handleOverlayTab(origin)) return;
+	if (isOutsideOverlay(origin)) closePokemonOverlay();
+}
+
+// Prüft, ob der Tab-Key gültig ist und liefert einen sicheren Fallback.
+function validateOverlayTab(key) {
+	if (key === 'about' || key === 'stats' || key === 'evolution' || key === 'moves') return key;
+	return 'about';
+}
+
+// Liefert ein valides Event-Ziel für Overlay-Aktionen.
+function getInteractionTarget(event) {
+	return event && event.target instanceof Element ? event.target : null;
+}
+
+// Erkennt direkte Aktionen zum Schließen des Overlays.
+function shouldCloseOverlay(origin) {
+	if (origin.classList.contains('pokemon-overlay__close')) return true;
+	return origin.classList.contains('pokemon-overlay__backdrop');
+}
+
+// Steuert Vorwärts- und Rückwärtsnavigation.
+function handleOverlayNavigation(origin) {
 	const prev = origin.closest('.pokemon-overlay__nav--prev');
-	if (prev) return changeOverlayPokemon(-1);
+	if (prev) {
+		changeOverlayPokemon(-1);
+		return true;
+	}
 	const next = origin.closest('.pokemon-overlay__nav--next');
-	if (next) return changeOverlayPokemon(1);
+	if (next) {
+		changeOverlayPokemon(1);
+		return true;
+	}
+	return false;
+}
+
+// Speichert den geklickten Tab-Schlüssel, falls vorhanden.
+function handleOverlayTab(origin) {
+	const tabButton = origin.closest('.pokemon-overlay__tabs .nav-link');
+	if (!tabButton || !tabButton.dataset) return false;
+	currentOverlayTab = validateOverlayTab(tabButton.dataset.tabKey);
+	return true;
+}
+
+// Prüft, ob der Klick außerhalb der Karte erfolgte.
+function isOutsideOverlay(origin) {
 	const insideCard = origin.closest('.pokemon-overlay__card');
 	const insideNav = origin.closest('.pokemon-overlay__nav');
-	if (!insideCard && !insideNav) return closePokemonOverlay();
+	return !insideCard && !insideNav;
 }
 
 // Ermöglicht ESC-Schließen und Pfeiltasten-Steuerung.
