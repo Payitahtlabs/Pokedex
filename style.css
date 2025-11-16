@@ -1,8 +1,11 @@
+/* ========== Suchbereich ========== */
+/* Positioniert den Suchbereich mittig und begrenzt die Breite */
 .search-container {
     max-width: 420px;
     margin: 1.5rem auto 0;
 }
 
+/* Optik des Input-Gruppen-Containers */
 .search-group {
     border-radius: 999px;
     overflow: hidden;
@@ -10,15 +13,18 @@
     background: rgba(255, 255, 255, 0.95);
 }
 
+/* Innenabstand und Rahmen des Eingabefelds */
 .search-group .form-control {
     border: none;
     padding-inline: 1.25rem;
 }
 
+/* Fokuszustand des Suchfelds ohne Schattenkaskade */
 .search-group .form-control:focus {
     box-shadow: none;
 }
 
+/* Button im Suchfeld für Icon und Klickfläche */
 .search-group .btn {
     border: none;
     display: flex;
@@ -27,22 +33,28 @@
     padding-inline: 1.5rem;
 }
 
+/* ========== Kopfzeile ========== */
+/* Grundfarben der Kopfzeile und Texte */
 header.site-header,
 header.site-header h1,
 header.site-header p {
     color: #ffffff;
 }
 
+/* Unterzeile im Header */
 header.site-header p {
     font-size: 1.15rem;
     margin-top: 0.5rem;
 }
 
+/* ========== Hauptbereich ========== */
+/* Hauptbereich mit leichtem Weißfilm */
 main.main-shell {
     flex: 1;
     background: rgba(255, 255, 255, 0.6);
 }
 
+/* Platzhalter-Kachel für zukünftige Filter */
 .placeholder-tile {
     border: 2px dashed rgba(100, 116, 139, 0.35);
     border-radius: 1rem;
@@ -53,11 +65,14 @@ main.main-shell {
     font-weight: 500;
 }
 
+/* Größe des Lade-Spinners */
 .loading-indicator .spinner-border {
     width: 3rem;
     height: 3rem;
 }
 
+/* ========== Pokémon-Karten ========== */
+/* Grundstil jeder Pokémon-Karte in der Übersicht */
 .pokemon-card {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 1.25rem;
@@ -66,18 +81,21 @@ main.main-shell {
     overflow: hidden;
 }
 
-
+/* ========== Statusmeldungen ========== */
+/* Basisformatierung für Statusmeldungen */
 .status-banner {
     border: none;
     color: #ffffff;
     text-align: center;
 }
 
+/* Fehlerbanner mit rotem Verlauf */
 .status-banner--error {
     background: linear-gradient(135deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.92));
     box-shadow: 0 16px 32px rgba(220, 38, 38, 0.25);
 }
 
+/* Hinweisbanner für Warnungen */
 .status-banner--warning {
     background: linear-gradient(135deg, rgba(252, 211, 77, 0.9), rgba(251, 191, 36, 0.88));
     color: #1f2937;
@@ -86,6 +104,8 @@ main.main-shell {
     font-weight: 600;
 }
 
+/* ========== Animationen ========== */
+/* Sanfte Einblendung für Hinweise */
 @keyframes fadeInSoft {
     from {
         opacity: 0;
@@ -97,14 +117,18 @@ main.main-shell {
     }
 }
 
+/* Animation-Hilfsklasse für Banner */
 .animate__fadeIn {
     animation: fadeInSoft 0.45s ease forwards;
 }
 
+/* ========== Overlay ========== */
+/* Verhindert Scrollen bei aktivem Overlay */
 body.overlay-open {
     overflow: hidden;
 }
 
+/* Wurzelcontainer für das Overlay */
 .pokemon-overlay-root {
     position: fixed;
     inset: 0;
@@ -113,15 +137,19 @@ body.overlay-open {
     padding: 2rem 1rem;
 }
 
+/* Sichtbarer Zustand des Overlay-Roots */
 .pokemon-overlay-root.is-active {
     display: block;
 }
 
+/* Zentrierter Wrapper innerhalb des Roots */
 .pokemon-overlay {
     position: relative;
     min-height: 100%;
 }
 
+/* ========== Overlay-Layout ========== */
+/* Abdunkelung des Hintergrunds */
 .pokemon-overlay__backdrop {
     position: fixed;
     inset: 0;
@@ -129,6 +157,7 @@ body.overlay-open {
     backdrop-filter: blur(6px);
 }
 
+/* Rahmen, der Karte und Navigation enthält */
 .pokemon-overlay__frame {
     position: relative;
     max-width: 960px;
@@ -140,12 +169,14 @@ body.overlay-open {
     z-index: 1;
 }
 
+/* Hauptkarte im Overlay mit abgerundeten Ecken */
 .pokemon-overlay__card {
     flex: 1 1 auto;
     border-radius: 1.5rem;
     overflow: hidden;
 }
 
+/* Oberer Hero-Abschnitt mit Bild und Badges */
 .pokemon-overlay__hero {
     padding: 2.75rem 2rem 2rem;
     position: relative;
@@ -155,6 +186,7 @@ body.overlay-open {
     gap: 1rem;
 }
 
+/* Hero-Bild mit Drop-Shadow */
 .pokemon-overlay__hero img {
     max-width: 260px;
     width: 100%;
@@ -162,6 +194,7 @@ body.overlay-open {
     filter: drop-shadow(0 18px 30px rgba(15, 23, 42, 0.35));
 }
 
+/* Typ-Badges innerhalb des Overlays */
 .pokemon-overlay__types .badge {
     margin: 0 0.25rem;
     background: rgba(255, 255, 255, 0.9);
@@ -169,37 +202,76 @@ body.overlay-open {
     color: #1f2937;
 }
 
+/* Unterer Inhaltsbereich mit Tabs und Details */
 .pokemon-overlay__details {
     min-height: 260px;
     padding: 1.5rem 2.75rem 2.5rem;
-    background: #f8fafc;
+    background: transparent;
+    background-image: inherit;
 }
 
+/* Abstand zwischen Listenzeilen im Detailbereich */
 .pokemon-overlay__details li + li {
     margin-top: 0.35rem;
 }
 
+/* ========== Evolution im Overlay ========== */
+/* Darstellung der Evolutionskarten im Overlay */
+.pokemon-evolution__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pokemon-evolution__image {
+    width: 96px;
+    /* Quadratische Darstellung der Evolutionssprites */
+    height: 96px;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 20px rgba(15, 23, 42, 0.18));
+}
+
+.pokemon-evolution__label {
+    /* Beschriftung unterhalb des Evolutionssprites */
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #0f172a;
+    text-transform: uppercase;
+}
+
+.pokemon-evolution__arrow svg {
+    /* Pfeile zwischen den Evolutionsstufen */
+    color: #475569;
+}
+
+/* ========== Detail- und Tab-Bereich im Overlay ========== */
+/* Layout einer Zeile im About-Tab */
 .pokemon-overlay__detail {
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
 }
 
+/* Styling für das Feldlabel */
 .pokemon-overlay__detail-label {
     min-width: 120px;
     color: #475569;
     font-weight: 600;
 }
 
+/* Styling für den Feldwert */
 .pokemon-overlay__detail-value {
     color: #0f172a;
     flex: 1;
 }
 
+/* Abstand rund um die Tab-Navigation */
 .pokemon-overlay__tabs {
     margin-bottom: 1.25rem;
 }
 
+/* Basisstil der Tab-Buttons */
 .pokemon-overlay__tabs .nav-link {
     border-radius: 999px;
     font-weight: 600;
@@ -212,6 +284,7 @@ body.overlay-open {
     transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
+/* Hover- und Fokusstate der Tabs */
 .pokemon-overlay__tabs .nav-link:hover,
 .pokemon-overlay__tabs .nav-link:focus {
     color: #0f172a;
@@ -221,6 +294,7 @@ body.overlay-open {
     outline: none;
 }
 
+/* Aktiver Tab mit Unterstreichung */
 .pokemon-overlay__tabs .nav-link.active {
     background: transparent;
     color: #0f172a;
@@ -230,6 +304,7 @@ body.overlay-open {
     box-shadow: none;
 }
 
+/* Überschriften der Untersektionen */
 .pokemon-overlay__section-title {
     font-size: 0.85rem;
     letter-spacing: 0.08em;
@@ -238,44 +313,54 @@ body.overlay-open {
     margin-bottom: 0.85rem;
 }
 
+/* Flexlayout für Stat-Zeilen */
 .pokemon-overlay__stat {
     gap: 1rem;
 }
 
+/* Textstil der Stat-Namen */
 .pokemon-overlay__stat-label {
     min-width: 72px;
     color: #475569;
 }
 
+/* Hintergrund der Stat-Progressbar */
 .pokemon-overlay__stats .progress {
     height: 0.625rem;
     background: rgba(148, 163, 184, 0.25);
     border-radius: 999px;
 }
 
+/* Schriftgröße und Rundung der Balken */
 .pokemon-overlay__stats .progress-bar {
     border-radius: 999px;
     font-size: 0.65rem;
 }
 
+/* Zusätzliche Abhebung für die Gesamtzeile */
 .pokemon-overlay__stat--total {
     margin-top: 1rem;
     padding-top: 0.5rem;
     border-top: 1px solid rgba(148, 163, 184, 0.35);
 }
 
+/* Farbe des Total-Labels */
 .pokemon-overlay__stat--total .pokemon-overlay__stat-label {
     color: #0f172a;
 }
 
+/* Hintergrund des Total-Balkens */
 .pokemon-overlay__stat--total .progress {
     background: rgba(59, 130, 246, 0.18);
 }
 
+/* Verlauf des Total-Balkens */
 .pokemon-overlay__stat--total .progress-bar {
     background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
 }
 
+/* ========== Overlay-Navigation und Buttons ========== */
+/* Close-Button oben rechts im Overlay */
 .pokemon-overlay__close {
     position: absolute;
     top: 1rem;
@@ -287,12 +372,14 @@ body.overlay-open {
     opacity: 0.8;
 }
 
+/* Hover/Fokus Verhalten des Close-Buttons */
 .pokemon-overlay__close:hover,
 .pokemon-overlay__close:focus {
     opacity: 1;
     text-decoration: none;
 }
 
+/* Runde Navigationstasten links/rechts */
 .pokemon-overlay__nav {
     position: absolute;
     top: 50%;
@@ -307,43 +394,24 @@ body.overlay-open {
     z-index: 2;
 }
 
+/* Position des vorherigen Buttons */
 .pokemon-overlay__nav--prev {
     left: -0.75rem;
 }
 
+/* Position des nächsten Buttons */
 .pokemon-overlay__nav--next {
     right: -0.75rem;
 }
 
+/* Deaktivierte Navigation ist ausgegraut */
 .pokemon-overlay__nav[disabled] {
     opacity: 0.4;
     pointer-events: none;
 }
 
-@media (max-width: 992px) {
-    .pokemon-overlay__frame {
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .pokemon-overlay__nav {
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 2.75rem;
-        height: 2.75rem;
-        z-index: 1090;
-    }
-
-    .pokemon-overlay__nav--prev {
-        left: 0.75rem;
-    }
-
-    .pokemon-overlay__nav--next {
-        right: 0.75rem;
-    }
-}
-
+/* ========== Statusbanner Buttons ========== */
+/* Buttons innerhalb der Statusbanner */
 .status-banner .btn {
     border: 1px solid rgba(255, 255, 255, 0.65);
     color: #ffffff;
@@ -351,17 +419,21 @@ body.overlay-open {
     margin-top: 0.5rem;
 }
 
+/* Hoverzustand der Banner-Buttons */
 .status-banner .btn:hover {
     border-color: #ffffff;
     color: #0f172a;
     background: rgba(255, 255, 255, 0.85);
 }
 
+/* ========== Karten-Interaktion und Details ========== */
+/* Leichter Lift-Effekt beim Hovern über Karten */
 .pokemon-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
 }
 
+/* halbtransparente Overlay-Fläche für Farbverlauf */
 .pokemon-card::before {
     content: "";
     position: absolute;
@@ -370,11 +442,13 @@ body.overlay-open {
     opacity: 0.85;
 }
 
+/* Inhalt der Karte bleibt über dem Overlay */
 .pokemon-card .card-body {
     position: relative;
     z-index: 1;
 }
 
+/* Badge für die laufende Pokémon-ID */
 .pokemon-card__id {
     position: absolute;
     top: 0.75rem;
@@ -387,10 +461,12 @@ body.overlay-open {
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
 }
 
+/* Korrigiert Abstand zwischen ID-Badge und Bild */
 .pokemon-card .pokemon-card__id + img {
     margin-top: 1.25rem;
 }
 
+/* Typ-Badges innerhalb der Karten */
 .pokemon-card__types .badge {
     font-size: 0.75rem;
     text-transform: capitalize;
@@ -400,6 +476,7 @@ body.overlay-open {
     box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
 }
 
+/* Bildgröße und Drop-Shadow für Karten */
 .pokemon-card img {
     max-width: 140px;
     width: 100%;
@@ -408,15 +485,19 @@ body.overlay-open {
     transition: transform 0.25s ease;
 }
 
+/* Skalierung des Bildes bei Hover */
 .pokemon-card:hover img {
     transform: scale(1.08);
 }
 
+/* ========== Ladebutton ========== */
+/* Deaktivierter Ladebutton leicht transparent */
 #loadMoreButton:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
+/* Standardstil des Ladebuttons */
 #loadMoreButton {
     background: linear-gradient(135deg, #6de6d4 0%, #46c9bb 100%);
     color: #102026;
@@ -425,11 +506,62 @@ body.overlay-open {
     letter-spacing: 0.02em;
 }
 
+/* Hoverstil des aktiven Ladebuttons */
 #loadMoreButton:hover:not(:disabled) {
     background: linear-gradient(135deg, #57d9c6 0%, #34b3a3 100%);
     color: #0a161a;
 }
 
+/* ========== Navigationsbereich ========== */
+/* Abstand zur Navigationssektion am Ende */
 .navigation-section {
     margin-top: 3rem;
+}
+
+/* ========== Responsive Anpassungen (@media) ========== */
+@media (max-width: 576px) {
+    /* Stapelt Evolutionseinträge vertikal */
+    .pokemon-evolution {
+        flex-direction: column;
+        align-items: center;
+        --bs-gutter-x: 0;
+    }
+    /* Breit laufende Item-Karten nehmen volle Breite ein */
+    .pokemon-evolution__item {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 240px;
+    }
+    /* Abstand rund um den Pfeil */
+    .pokemon-evolution__arrow {
+        padding: 0.35rem 0;
+    }
+    /* Pfeil zeigt nach unten für linearen Ablauf */
+    .pokemon-evolution__arrow svg {
+        transform: rotate(90deg);
+        transform-origin: center;
+        width: 24px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 992px) {
+    .pokemon-overlay__frame {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .pokemon-overlay__nav {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.75rem;
+        height: 2.75rem;
+        z-index: 1090;
+    }
+    .pokemon-overlay__nav--prev {
+        left: 0.75rem;
+    }
+    .pokemon-overlay__nav--next {
+        right: 0.75rem;
+    }
 }

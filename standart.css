@@ -1,9 +1,11 @@
+/* Setzt Box-Modell und Grundabstände zurück */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* Grundlayout und Verlaufshintergrund der Seite */
 body {
     min-height: 100vh;
     display: flex;

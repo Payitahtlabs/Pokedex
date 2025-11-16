@@ -1,6 +1,6 @@
 // Baut das Markup für eine Pokémon-Karte in der Übersicht.
 function createPokemonCard(pokemon) {
-	const { id = 0, name = 'Pokemon', image = '', weight = '?', background = 'rgba(255,255,255,0.9)' } = pokemon;
+	const { id = 0, name = 'Pokemon', image = '', background = 'rgba(255,255,255,0.9)' } = pokemon;
 	const badges = buildTypeBadges(pokemon.types || []);
 	const idLabel = String(id).padStart(3, '0');
 
@@ -11,8 +11,7 @@ function createPokemonCard(pokemon) {
 					<span class="pokemon-card__id badge bg-light text-dark">#${idLabel}</span>
 					<img class="img-fluid mb-3" src="${image}" alt="${name}" loading="lazy" />
 					<h2 class="h5 fw-semibold mb-1">${name}</h2>
-					<div class="pokemon-card__types mb-2">${badges}</div>
-					<p class="text-muted small mb-0">Gewicht: ${weight} kg</p>
+					<div class="pokemon-card__types mb-0">${badges}</div>
 				</div>
 			</article>
 		</div>
@@ -89,8 +88,8 @@ function buildOverlayTabContent(info) {
 	const baseId = info.tabBaseId;
 	const about = createAboutPane(baseId, info);
 	const stats = createStatsPane(baseId, info);
-	const evolution = createPlaceholderPane(baseId, 'evolution', 'Evolution', info.activeTab === 'evolution');
-	const moves = createPlaceholderPane(baseId, 'moves', 'Moves', info.activeTab === 'moves');
+	const evolution = createEvolutionPane(baseId, info);
+	const moves = createMovesPane(baseId, info);
 	return `
 		<div class="tab-content mt-4">
 			${about}
@@ -121,6 +120,7 @@ function createAboutPane(baseId, info) {
 	return wrapTabPane(baseId, 'about', info.activeTab === 'about', content);
 }
 
+// Erstellt die linke Spalte des About-Tabs mit generellen Eckdaten.
 function buildOverviewColumn(info) {
 		return `
 			<div class="col-md-6">
@@ -135,6 +135,7 @@ function buildOverviewColumn(info) {
 		`;
 }
 
+// Erstellt die rechte Spalte mit Zuchtinformationen und Eiern.
 function buildBreedingColumn(info) {
 		return `
 			<div class="col-md-6">
@@ -148,6 +149,7 @@ function buildBreedingColumn(info) {
 		`;
 }
 
+// Liefert eine Listenzeile aus Label und Wert für die About-Sektion.
 function buildDetailRow(label, value) {
 	return `<li class="pokemon-overlay__detail"><span class="pokemon-overlay__detail-label">${label}</span><span class="pokemon-overlay__detail-value">${value}</span></li>`;
 }
@@ -165,10 +167,69 @@ function createStatsPane(baseId, info) {
 	return wrapTabPane(baseId, 'stats', info.activeTab === 'stats', content);
 }
 
+// Baut den Moves-Tab mit einer kompakten Tabelle.
+function createMovesPane(baseId, info) {
+	const content = buildMovesTable(info.moves || []);
+	return wrapTabPane(baseId, 'moves', info.activeTab === 'moves', content);
+}
+
 // Platzhalter-Panel für noch nicht umgesetzte Inhalte.
 function createPlaceholderPane(baseId, key, label, isActive) {
 	const text = `<p class="text-muted small mb-0">${label} wird demnächst ergänzt.</p>`;
 	return wrapTabPane(baseId, key, isActive, text);
+}
+
+// Baut die Moves-Tabelle mit Name, Typ und Effekt.
+function buildMovesTable(moves) {
+	if (!moves.length) return '<p class="text-muted small mb-0">No move data available.</p>';
+	const rows = renderMoveRows(moves);
+	return wrapMovesTable(rows);
+}
+
+// Fügt alle Move-Zeilen zu einer HTML-Kette zusammen.
+function renderMoveRows(moves) {
+	return moves.map((entry) => composeMoveRow(entry)).join('');
+}
+
+// Kapselt Tabelle und Kopfbereich für den Moves-Tab.
+function wrapMovesTable(rows) {
+	return `
+		<div class="table-responsive">
+			<table class="table table-sm table-borderless align-middle mb-0 bg-transparent">
+				<thead class="text-muted text-uppercase small">
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Type</th>
+						<th scope="col">Effect</th>
+					</tr>
+				</thead>
+				<tbody>${rows}</tbody>
+			</table>
+		</div>
+	`;
+}
+
+// Setzt eine Tabellenzeile für einen einzelnen Move zusammen.
+function composeMoveRow(move) {
+	if (!move) return '';
+	const typeBadge = `<span class="badge rounded-pill bg-light text-dark">${move.type || '—'}</span>`;
+	return `
+		<tr>
+			<td>
+				<div class="fw-semibold">${move.name || 'Unknown'}</div>
+			</td>
+			<td>${typeBadge}</td>
+			<td><small class="text-muted">${truncateEffectText(move.effect)}</small></td>
+		</tr>
+	`;
+}
+
+// Kürzt den Effekttext auf eine lesbare Länge.
+function truncateEffectText(text) {
+	if (!text) return 'No effect info available.';
+	const clean = text.trim();
+	if (clean.length <= 140) return clean;
+	return clean.slice(0, 137) + '…';
 }
 
 // Umhüllt einen Pane-Inhalt mit den notwendigen Bootstrap-Attributen.
@@ -186,6 +247,7 @@ function buildAbilityList(abilities) {
 }
 
 // Baut die Markup-Zeilen für die Basiswerte.
+// Erzeugt alle Stat-Zeilen oder zeigt eine Hinweisnachricht an.
 function buildStatRows(stats) {
 	if (!stats || !stats.length) return `<p class="text-muted small mb-0">No values available.</p>`;
 	let rows = '';
@@ -196,6 +258,7 @@ function buildStatRows(stats) {
 }
 
 // Setzt eine einzelne Stat-Zeile mit Fortschrittsbalken zusammen.
+// Stellt eine einzelne Stat-Zeile inklusive Progress-Bar zusammen.
 function composeStatRow(entry) {
 	const value = entry && entry.value ? entry.value : 0;
 	const label = entry && entry.label ? entry.label : '';
@@ -213,6 +276,7 @@ function composeStatRow(entry) {
 }
 
 // Fügt eine Gesamtzeile mit Fortschrittsbalken hinzu.
+// Fasst alle Basiswerte zu einer Gesamtzeile zusammen.
 function composeTotalRow(stats) {
 	const maxTotal = 780;
 	const total = buildStatTotal(stats);
@@ -228,6 +292,7 @@ function composeTotalRow(stats) {
 }
 
 // Summiert alle Basiswerte auf.
+// Summiert sämtliche übergebenen Stats auf.
 function buildStatTotal(stats) {
 	if (!stats || !stats.length) return 0;
 	let sum = 0;
@@ -246,6 +311,8 @@ function prepareOverlayDetails(pokemon, activeTab) {
 	details.typeBadges = buildTypeBadges(types, 'bg-white text-dark border border-light-subtle');
 	details.abilities = buildAbilityList(entry.abilities || []);
 	details.stats = entry.stats || [];
+	details.evolutions = entry.evolutions || [];
+	details.moves = entry.moves || [];
 	return details;
 }
 
@@ -271,6 +338,47 @@ function addBreedingDefaults(details, entry) {
 	details.gender = entry.gender || 'Not available';
 	details.eggGroups = entry.eggGroups || 'Not available';
 	details.hatchInfo = entry.hatchInfo || 'Not available';
+}
+
+// Rendert den Evolution-Tab mit allen vorhandenen Entwicklungsstufen.
+function createEvolutionPane(baseId, info) {
+	const content = buildEvolutionList(info.evolutions || []);
+	return wrapTabPane(baseId, 'evolution', info.activeTab === 'evolution', content);
+}
+
+// Baut eine lineare Darstellung aller Stufen inklusive Pfeilen zwischen den Karten.
+function buildEvolutionList(list) {
+	if (!list || !list.length) return `<p class="text-muted small mb-0">No evolution data available.</p>`;
+	let html = '<div class="pokemon-evolution row g-3 align-items-center justify-content-center">';
+	for (let i = 0; i < list.length; i += 1) {
+		html += buildEvolutionItem(list[i]);
+		if (i < list.length - 1) html += buildEvolutionArrow();
+	}
+	return html + '</div>';
+}
+
+// Zeigt eine einzelne Entwicklungsstufe samt Bild und Name an.
+function buildEvolutionItem(entry) {
+	const img = entry && entry.image ? entry.image : '';
+	const name = entry && entry.name ? entry.name : 'Unknown';
+	return `
+		<div class="pokemon-evolution__item col-6 col-sm-3 text-center">
+			<img class="pokemon-evolution__image" src="${img}" alt="${name}" loading="lazy" />
+			<div class="pokemon-evolution__label">${name}</div>
+		</div>
+	`;
+}
+
+// Trennt zwei Stufen mit einem Pfeil, der die Evolutionsrichtung verdeutlicht.
+function buildEvolutionArrow() {
+	return `
+		<div class="pokemon-evolution__arrow col-auto d-flex align-items-center justify-content-center" aria-hidden="true">
+			<svg width="36" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M4 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="M14 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</div>
+	`;
 }
 
 window.PokedexTemplates = {

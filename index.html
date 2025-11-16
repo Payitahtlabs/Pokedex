@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokedex</title>
+    <title>Pokédex</title>
     <link rel="icon" type="image/png" href="https://img.icons8.com/color/96/pokeball.png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -26,13 +26,13 @@
     <header class="site-header text-center py-5">
         <div class="brand-title d-flex align-items-center justify-content-center gap-3">
             <img src="https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png" alt="PokéAPI Logo">
-            <h1>Pokedex</h1>
+            <h1>Pokédex</h1>
         </div>
-        <p>Discover the world of Pokemon</p>
+        <p>Discover the world of Pokémon</p>
         <div class="search-container mt-4">
             <div class="input-group search-group">
                 <input type="text" class="form-control" id="searchInput"
-                    placeholder="Search Pokemon... (min. 3 letters)" autocomplete="off">
+                    placeholder="Search Pokémon... (min. 3 letters)" autocomplete="off">
                 <button class="btn btn-primary" id="searchButton" type="button" aria-label="Pokémon suchen">🔍</button>
             </div>
         </div>
@@ -48,16 +48,16 @@
         <section class="container mb-4">
             <div id="loading-indicator" class="loading-indicator text-center mb-4 d-none" role="status">
                 <div class="spinner-border text-light" aria-hidden="true"></div>
-                <p class="mt-2 mb-0 text-light">Pokémon werden geladen...</p>
+                    <p class="mt-2 mb-0 text-light">Loading Pokémon...</p>
             </div>
             <div id="errorBanner" class="alert alert-danger d-none status-banner status-banner--error" role="alert">
                 <div class="d-flex flex-column align-items-center gap-2 text-center">
-                    <span id="errorMessage">Beim Laden der Pokémon ist ein Fehler aufgetreten.</span>
-                    <button id="retryButton" type="button" class="btn btn-outline-light btn-sm">Erneut versuchen</button>
+                    <span id="errorMessage">An error occurred while loading Pokémon.</span>
+                    <button id="retryButton" type="button" class="btn btn-outline-light btn-sm">Try again</button>
                 </div>
             </div>
             <div id="noResultsMessage" class="alert alert-warning d-none status-banner status-banner--warning" role="status">
-                Keine Pokémon gefunden. Bitte passe deine Suche an.
+                No Pokémon found. Try a different search term.
             </div>
             <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4" id="pokemon-grid">
                 <!-- Hier werden die Pokémon-Karten eingefügt -->
@@ -67,7 +67,7 @@
         <section class="navigation-section container">
             <div class="text-center">
                 <button id="loadMoreButton" type="button" class="btn btn-outline-light px-4 py-2">
-                    Weitere Pokémon laden
+                    Load more Pokémon
                 </button>
             </div>
         </section>

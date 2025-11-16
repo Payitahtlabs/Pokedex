@@ -28,6 +28,8 @@ const STAT_LABEL_MAP = {
 	'special-defense': 'Sp. Def',
 	speed: 'Speed',
 };
+const FEATURED_MOVE_LIMIT = 6;
+const moveDetailCache = {};
 
 // Holt den kompletten Poké-Katalog oder stößt ihn bei Bedarf an.
 async function loadFullPokemonCatalog() {
@@ -68,7 +70,8 @@ async function fetchPokemonDetails(url) {
 	if (!response.ok) throw new Error('Detail-Code ' + response.status);
 	const data = await response.json();
 	const species = await fetchPokemonSpecies(data && data.species ? data.species.url : null);
-	return simplifyPokemonData(data, species);
+	const chain = await fetchEvolutionChain(species);
+	return await simplifyPokemonData(data, species, chain);
 }
 
 // Holt ergänzende Speziesdaten für Zuchtinformationen.
@@ -84,13 +87,29 @@ async function fetchPokemonSpecies(url) {
 	}
 }
 
+// Lädt die Evolutionskette der Spezies, sofern die API einen Verweis liefert.
+async function fetchEvolutionChain(species) {
+	if (!species || !species.evolution_chain) return null;
+	const url = species.evolution_chain.url;
+	if (!url) return null;
+	try {
+		const response = await fetch(url);
+		if (!response.ok) return null;
+		return await response.json();
+	} catch (error) {
+		console.warn('Fehler beim Laden der Evolution:', error);
+		return null;
+	}
+}
+
 // Wandelt rohe API-Daten in das vereinfachte Kartenmodell um.
-function simplifyPokemonData(data, species) {
+async function simplifyPokemonData(data, species, chain) {
 	const image = selectPokemonImage(data);
 	const types = extractPokemonTypes(data);
 	const mainType = types.length ? types[0].toLowerCase() : 'default';
 	const entry = buildPokemonBasics(data, image, types);
-	addPokemonExtras(entry, species, mainType);
+	addPokemonExtras(entry, species, mainType, chain);
+	entry.moves = await buildFeaturedMoves(data.moves);
 	return entry;
 }
 
@@ -105,16 +124,156 @@ function buildPokemonBasics(data, image, types) {
 		types: types,
 		abilities: extractPokemonAbilities(data),
 		stats: extractPokemonStats(data.stats),
+		evolutions: [],
 	};
 }
 
 // Ergänzt Zucht- und Hintergrunddaten.
-function addPokemonExtras(entry, species, mainType) {
+function addPokemonExtras(entry, species, mainType, chain) {
 	entry.species = formatSpeciesName(species);
 	entry.gender = formatGenderRate(species);
 	entry.eggGroups = formatEggGroups(species);
 	entry.hatchInfo = formatHatchInfo(species);
 	entry.background = buildCardBackground(resolveTypeColor(mainType));
+	entry.evolutions = buildEvolutionEntries(chain);
+}
+
+// Extrahiert eine kuratierte Auswahlliste an Moves inklusive Detaildaten.
+async function buildFeaturedMoves(rawMoves) {
+	if (!Array.isArray(rawMoves) || !rawMoves.length) return [];
+	const prioritized = prioritizeMoveRefs(rawMoves);
+	const limited = prioritized.slice(0, FEATURED_MOVE_LIMIT);
+	const summaries = await Promise.all(limited.map((ref) => loadMoveSummary(ref)));
+	return summaries.filter((entry) => entry);
+}
+
+// Organisiert Move-Referenzen und bevorzugt Level-Up-Einträge.
+function prioritizeMoveRefs(rawMoves) {
+	if (!Array.isArray(rawMoves)) return [];
+	const levelUp = [];
+	const fallback = [];
+	rawMoves.forEach((entry) => pushMoveReference(entry, levelUp, fallback));
+	sortLevelUpMoves(levelUp);
+	return levelUp.concat(fallback);
+}
+
+// Fügt eine Move-Referenz der passenden Bucket-Liste hinzu.
+function pushMoveReference(entry, levelUp, fallback) {
+	if (!entry || !entry.move || !entry.move.url) return;
+	const meta = extractMoveMeta(entry);
+	const target = meta.method === 'level-up' ? levelUp : fallback;
+	target.push({
+		url: entry.move.url,
+		name: entry.move.name,
+		meta: meta,
+	});
+}
+
+// Sortiert Level-Up-Moves aufsteigend nach Lernlevel.
+function sortLevelUpMoves(list) {
+	list.sort((a, b) => {
+		const levelA = typeof a.meta.level === 'number' ? a.meta.level : Number.POSITIVE_INFINITY;
+		const levelB = typeof b.meta.level === 'number' ? b.meta.level : Number.POSITIVE_INFINITY;
+		return levelA - levelB;
+	});
+}
+
+// Extrahiert Level, Methode und Version aus den Move-Verfügbarkeiten.
+function extractMoveMeta(rawEntry) {
+	const details = Array.isArray(rawEntry.version_group_details) ? rawEntry.version_group_details : [];
+	const bestDetail = selectBestMoveDetail(details);
+	return composeMoveMeta(bestDetail);
+}
+
+// Wählt den besten Detail-Eintrag anhand des niedrigsten Levels.
+function selectBestMoveDetail(details) {
+	if (!details.length) return null;
+	let best = details[0];
+	for (const item of details) {
+		if (isBetterMoveLevel(item, best)) best = item;
+	}
+	return best;
+}
+
+// Prüft, ob Kandidat gegenüber dem bisherigen Eintrag bevorzugt wird.
+function isBetterMoveLevel(candidate, current) {
+	if (!candidate) return false;
+	const candidateLevel = candidate.level_learned_at || 0;
+	const currentLevel = current && current.level_learned_at ? current.level_learned_at : 0;
+	if (candidateLevel === 0) return false;
+	if (!currentLevel) return true;
+	return candidateLevel < currentLevel;
+}
+
+// Erzeugt ein Meta-Objekt mit Level, Methode und Version.
+function composeMoveMeta(detail) {
+	if (!detail) return { level: null, method: 'unknown', version: null };
+	return {
+		level: typeof detail.level_learned_at === 'number' ? detail.level_learned_at : null,
+		method: detail.move_learn_method && detail.move_learn_method.name ? detail.move_learn_method.name : 'unknown',
+		version: detail.version_group && detail.version_group.name ? detail.version_group.name : null,
+	};
+}
+
+// Lädt Move-Details einmalig und erstellt ein vereinfachtes Objekt.
+async function loadMoveSummary(reference) {
+	if (!reference || !reference.url) return null;
+	if (moveDetailCache[reference.url]) return moveDetailCache[reference.url];
+	try {
+		const response = await fetch(reference.url);
+		if (!response.ok) throw new Error('Move-Code ' + response.status);
+		const data = await response.json();
+		const summary = simplifyMoveEntry(data);
+		moveDetailCache[reference.url] = summary;
+		return summary;
+	} catch (error) {
+		console.warn('Fehler beim Laden eines Moves:', error);
+		return null;
+	}
+}
+
+// Reduziert die Move-Daten auf die Felder, die das UI wirklich nutzt.
+function simplifyMoveEntry(moveData) {
+	if (!moveData) return null;
+	return {
+		id: moveData.id,
+		name: formatMoveName(moveData.name),
+		type: deriveMoveType(moveData),
+		effect: selectEnglishEffectText(moveData),
+	};
+}
+
+// Formatiert den Move-Namen oder liefert einen Default zurück.
+function formatMoveName(name) {
+	if (!name) return 'Unknown';
+	return capitalize(name);
+}
+
+// Ermittelt den Typennamen des Moves in lesbarer Form.
+function deriveMoveType(moveData) {
+	if (!moveData || !moveData.type || !moveData.type.name) return '—';
+	return capitalize(moveData.type.name);
+}
+
+// Wählt eine kurze englische Effektbeschreibung und ersetzt Platzhalter.
+function selectEnglishEffectText(moveData) {
+	if (!moveData || !Array.isArray(moveData.effect_entries)) return 'No effect info available.';
+	for (let i = 0; i < moveData.effect_entries.length; i += 1) {
+		const entry = moveData.effect_entries[i];
+		if (!entry || !entry.language || entry.language.name !== 'en') continue;
+		const text = entry.short_effect || entry.effect || '';
+		return cleanEffectText(text, moveData.effect_chance);
+	}
+	return 'No effect info available.';
+}
+
+// Ersetzt $effect_chance Platzhalter in Effekttexten.
+function cleanEffectText(text, chance) {
+	if (!text) return 'No effect info available.';
+	if (typeof chance === 'number') {
+		return text.replace(/\$effect_chance/g, chance);
+	}
+	return text.replace(/\$effect_chance/g, '');
 }
 
 // Wählt das bestmögliche Sprite für die Karte aus.
@@ -221,6 +380,46 @@ function formatHatchInfo(species) {
 function formatPercentValue(value) {
 	if (typeof value !== 'number') return '0';
 	return value % 1 === 0 ? value.toFixed(0) : value.toFixed(1);
+}
+
+// Wandelt eine Evolutionskette in ein flaches Array mit Bild- und Namenseinträgen um.
+function buildEvolutionEntries(chain) {
+	if (!chain || !chain.chain) return [];
+	const list = [];
+	collectEvolutionNodes(chain.chain, list);
+	return list;
+}
+
+// Traversiert rekursiv die Evolutionskette und sammelt jede Stufe ein.
+function collectEvolutionNodes(node, bucket) {
+	if (!node || !bucket) return;
+	bucket.push(createEvolutionEntry(node.species));
+	if (!node.evolves_to || !node.evolves_to.length) return;
+	for (let i = 0; i < node.evolves_to.length; i += 1) {
+		collectEvolutionNodes(node.evolves_to[i], bucket);
+	}
+}
+
+// Erstellt einen darstellbaren Eintrag mit Namen und Artwork-URL.
+function createEvolutionEntry(species) {
+	if (!species) return { name: 'Unknown', image: '' };
+	const id = resolveSpeciesId(species.url);
+	const label = species.name ? capitalize(species.name) : 'Unknown';
+	return { name: label, image: buildArtworkUrl(id) };
+}
+
+// Ermittelt die numerische ID aus einer Spezies-URL.
+function resolveSpeciesId(url) {
+	if (!url) return null;
+	const parts = url.split('/').filter(Boolean);
+	const id = Number(parts.pop());
+	return Number.isNaN(id) ? null : id;
+}
+
+// Liefert die offizielle Artwork-URL zu einer Pokémon-ID.
+function buildArtworkUrl(id) {
+	if (!id) return '';
+	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + id + '.png';
 }
 
 // Sucht ein Pokémon im Cache über seinen Großbuchstaben-Namen.

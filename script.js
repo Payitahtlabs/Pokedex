@@ -1,3 +1,4 @@
+// --- Globale Statusvariablen für DOM-Verweise und Laufzeitdaten ---
 let grid;
 let loadMoreButton;
 let loadingIndicator;
@@ -20,11 +21,13 @@ let currentDisplayList = [];
 let overlayRoot = null;
 let currentOverlayIndex = -1;
 let currentOverlayTab = 'about';
+
+// --- API- und UI-Konfiguration ---
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
-const loadButtonLabel = 'Weitere Pokémon laden';
-const loadingButtonLabel = 'Pokémon werden geladen...';
-const noMorePokemonLabel = 'Keine weiteren Pokémon';
+const loadButtonLabel = 'Load more Pokémon';
+const loadingButtonLabel = 'Loading Pokémon...';
+const noMorePokemonLabel = 'No more Pokémon';
 const minSearchLength = 3;
 const fullCatalogLimit = 2000;
 const searchDebounceDelay = 280;
@@ -155,8 +158,8 @@ function renderSearchResults(term, list) {
 
 // Protokolliert Suchfehler und zeigt den Fehlerbanner an.
 function handleSearchError(error) {
-	console.error('Fehler bei der Pokémon-Suche:', error);
-	showErrorBanner('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+	console.error('Error searching Pokémon:', error);
+	showErrorBanner('An error occurred while searching.');
 }
 
 // Kürzt und kleinschreibt den Suchbegriff für verlässliche Vergleiche.
@@ -241,9 +244,9 @@ function handlePokemonBatch(pokemon) {
 
 // Protokolliert Ladefehler und zeigt den Fehlerbanner mit Retry-Hinweis.
 function handleFetchError(error) {
-	console.error('Fehler beim Laden der Pokémon:', error);
+	console.error('Error loading Pokémon:', error);
 	hideNoResultsMessage();
-	showErrorBanner('Beim Laden der Pokémon ist ein Fehler aufgetreten. Bitte versuche es erneut.');
+	showErrorBanner('An error occurred while loading Pokémon.');
 }
 
 // Startet den Ladeversuch neu, sobald der Retry-Button gedrückt wird.
@@ -254,7 +257,7 @@ function handleRetryClick() {
 	loadNextBatch();
 }
 
-// Hält fest, welche Pokémon gerade sichtbar sind.
+// Hält fest, welche Pokémon aktuell im Grid sichtbar sind, damit das Overlay dieselbe Reihenfolge kennt.
 function updateCurrentDisplayState(list, reset) {
 	if (reset) {
 		currentDisplayList = Array.isArray(list) ? list.slice() : [];
