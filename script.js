@@ -3,7 +3,6 @@ let grid;
 let loadMoreButton;
 let loadingIndicator;
 let searchInput;
-let searchButton;
 let errorBanner;
 let retryButton;
 let errorMessageText;
@@ -51,7 +50,6 @@ function assignCoreElements() {
 	loadMoreButton = document.getElementById('loadMoreButton');
 	loadingIndicator = document.getElementById('loading-indicator');
 	searchInput = document.getElementById('searchInput');
-	searchButton = document.getElementById('searchButton');
 	errorBanner = document.getElementById('errorBanner');
 	retryButton = document.getElementById('retryButton');
 	errorMessageText = document.getElementById('errorMessage');
@@ -61,7 +59,6 @@ function assignCoreElements() {
 // Verknüpft Eingabefelder, Buttons und Retry-Aktionen mit ihren Handlern.
 function wireUiHandlers() {
 	if (searchInput) searchInput.oninput = handleSearchInput;
-	if (searchButton) searchButton.onclick = handleSearchButton;
 	if (retryButton) retryButton.onclick = handleRetryClick;
 	loadMoreButton.onclick = loadNextBatch;
 	if (grid) grid.onclick = handlePokemonCardClick;
@@ -108,14 +105,6 @@ function handleSearchInput() {
 	hideErrorBanner();
 	hideNoResultsMessage();
 	debounceSearch(searchInput.value);
-}
-
-// Startet die Suche sofort beim Klick auf den Suchbutton.
-function handleSearchButton() {
-	if (!searchInput) return;
-	hideErrorBanner();
-	hideNoResultsMessage();
-	applySearch(searchInput.value);
 }
 
 // Verzögert die Suchausführung, um unnötige API-Aufrufe zu vermeiden.

@@ -1,7 +1,7 @@
 /* ========== Suchbereich ========== */
 /* Positioniert den Suchbereich mittig und begrenzt die Breite */
 .search-container {
-    max-width: 420px;
+    max-width: 320px;
     margin: 1.5rem auto 0;
 }
 
@@ -24,14 +24,17 @@
     box-shadow: none;
 }
 
-/* Button im Suchfeld für Icon und Klickfläche */
-.search-group .btn {
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-inline: 1.5rem;
+@media (max-width: 370px) {
+    .search-container {
+        max-width: 320px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
 }
+
 
 /* ========== Kopfzeile ========== */
 /* Grundfarben der Kopfzeile und Texte */
@@ -40,6 +43,15 @@ header.site-header h1,
 header.site-header p {
     color: #ffffff;
 }
+
+/* PokeAPI-Logo Größe */
+.brand-title img {
+    max-width: 120px;
+    width: 100px;
+    height: auto;
+}
+
+
 
 /* Unterzeile im Header */
 header.site-header p {
@@ -52,17 +64,6 @@ header.site-header p {
 main.main-shell {
     flex: 1;
     background: rgba(255, 255, 255, 0.6);
-}
-
-/* Platzhalter-Kachel für zukünftige Filter */
-.placeholder-tile {
-    border: 2px dashed rgba(100, 116, 139, 0.35);
-    border-radius: 1rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    background: rgba(241, 245, 249, 0.65);
-    text-align: center;
-    color: #475569;
-    font-weight: 500;
 }
 
 /* Größe des Lade-Spinners */
@@ -174,21 +175,27 @@ body.overlay-open {
     flex: 1 1 auto;
     border-radius: 1.5rem;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Hält Abstand zur Root-Polsterung ein */
+    max-height: calc(100vh - 4rem);
 }
 
 /* Oberer Hero-Abschnitt mit Bild und Badges */
 .pokemon-overlay__hero {
-    padding: 2.75rem 2rem 2rem;
+    padding: 1.75rem 1.25rem 1.25rem;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.6rem;
+    /* Verhindert, dass der Hero schrumpft */
+    flex-shrink: 0;
 }
 
 /* Hero-Bild mit Drop-Shadow */
 .pokemon-overlay__hero img {
-    max-width: 260px;
+    max-width: 200px;
     width: 100%;
     height: auto;
     filter: drop-shadow(0 18px 30px rgba(15, 23, 42, 0.35));
@@ -204,14 +211,17 @@ body.overlay-open {
 
 /* Unterer Inhaltsbereich mit Tabs und Details */
 .pokemon-overlay__details {
-    min-height: 260px;
-    padding: 1.5rem 2.75rem 2.5rem;
+    padding: 1.25rem 2rem 2rem;
     background: transparent;
     background-image: inherit;
+    flex: 0 0 360px;
+    height: 360px;
+    max-height: 360px;
+    overflow-y: auto;
 }
 
-/* Abstand zwischen Listenzeilen im Detailbereich */
-.pokemon-overlay__details li + li {
+/* Abstand zwischen aufeinanderfolgenden Detailzeilen */
+.pokemon-overlay__detail + .pokemon-overlay__detail {
     margin-top: 0.35rem;
 }
 
@@ -563,5 +573,119 @@ body.overlay-open {
     }
     .pokemon-overlay__nav--next {
         right: 0.75rem;
+    }
+}
+
+/* Kompaktmodus für niedrige Bildschirmhöhen */
+@media (max-height: 768px) {
+    .pokemon-overlay__hero {
+        padding: 1.25rem 0.9rem 0.9rem;
+        gap: 0.45rem;
+    }
+
+    .pokemon-overlay__hero img {
+        max-width: 170px;
+        filter: drop-shadow(0 10px 15px rgba(15, 23, 42, 0.3));
+    }
+
+    .pokemon-overlay__details {
+        padding: 0.9rem 1.25rem 1.25rem;
+        flex-basis: 320px;
+        height: 320px;
+        max-height: 320px;
+    }
+}
+
+@media (max-height: 640px) {
+    .pokemon-overlay-root {
+        padding: 1.5rem 0.75rem;
+    }
+    .pokemon-overlay__hero {
+        padding: 1rem 0.85rem 0.85rem;
+        gap: 0.4rem;
+    }
+    .pokemon-overlay__hero img {
+        max-width: 150px;
+    }
+    .pokemon-overlay__hero .h2 {
+        font-size: 1.4rem;
+    }
+    .pokemon-overlay__types {
+        gap: 0.35rem;
+    }
+    .pokemon-overlay__details {
+        padding: 0.75rem 1rem 1rem;
+        flex-basis: 280px;
+        height: 280px;
+        max-height: 280px;
+    }
+    .pokemon-overlay__tabs .nav-link {
+        font-size: 1rem;
+        padding-bottom: 0.35rem;
+    }
+}
+
+@media (max-height: 560px) {
+    .pokemon-overlay-root {
+        padding: 1.25rem 0.5rem;
+    }
+    .pokemon-overlay__hero {
+        padding: 0.85rem 0.75rem 0.75rem;
+        gap: 0.35rem;
+    }
+    .pokemon-overlay__hero img {
+        max-width: 130px;
+    }
+    .pokemon-overlay__hero .badge {
+        font-size: 0.8rem;
+    }
+    .pokemon-overlay__tabs {
+        margin-bottom: 0.75rem;
+    }
+    .pokemon-overlay__tabs .nav-link {
+        font-size: 0.95rem;
+    }
+    .pokemon-overlay__details {
+        flex-basis: 240px;
+        height: 240px;
+        max-height: 240px;
+    }
+}
+
+/* Querformat-Layout für sehr flache Bildschirme */
+@media (max-height: 480px) {
+    .pokemon-overlay-root {
+        padding: 1rem;
+    }
+
+    .pokemon-overlay__card {
+        flex-direction: row;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .pokemon-overlay__hero {
+        flex-direction: column;
+        flex-shrink: 0;
+        flex-basis: 220px;
+        justify-content: center;
+        padding: 1.25rem;
+        gap: 0.6rem;
+    }
+
+    .pokemon-overlay__hero img {
+        max-width: 140px;
+    }
+
+    .pokemon-overlay__details {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 1.5rem;
+        height: auto;
+        max-height: none;
+    }
+
+    .pokemon-overlay__close {
+        top: 0.5rem;
+        right: 0.5rem;
     }
 }
