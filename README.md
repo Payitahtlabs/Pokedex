@@ -34,10 +34,10 @@ The project follows strict architectural principles to ensure maintainability an
 * **Modular Structure:**
     * `script.js`: Main Controller.
     * `pokemon-data.js`: Pure data logic and API communication (Fetch).
-    * `template.js`: Decoupled HTML components (Checklist: "Outsource HTML Templates").
+    * `template.js`: Decoupled HTML components.
     * `ui-helpers.js`: Helper functions for DOM manipulation.
 * **Performance:**
-    * **Fetch-then-Render:** Data is fully processed before being written to the DOM (prevents layout shifts).
+    * **Fetch-then-Render:** Data is fully processed before being written to the DOM.
     * **Lazy Loading Images:** Images utilize the `loading="lazy"` attribute.
 * **Frameworks:**
     * **Bootstrap 5:** For the responsive grid system and utility classes.
