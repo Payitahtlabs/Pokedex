@@ -170,18 +170,17 @@ body.overlay-open {
     z-index: 1;
 }
 
-/* Hauptkarte im Overlay mit abgerundeten Ecken */
+/* Hauptkarte im Overlay mit abgerundeten Ecken und kalkulierter Maximalhöhe */
 .pokemon-overlay__card {
     flex: 1 1 auto;
     border-radius: 1.5rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* Hält Abstand zur Root-Polsterung ein */
     max-height: calc(100vh - 4rem);
 }
 
-/* Oberer Hero-Abschnitt mit Bild und Badges */
+/* Oberer Hero-Abschnitt mit Bild und Badges, bleibt in der Höhe stabil */
 .pokemon-overlay__hero {
     padding: 1.75rem 1.25rem 1.25rem;
     position: relative;
@@ -189,7 +188,6 @@ body.overlay-open {
     flex-direction: column;
     align-items: center;
     gap: 0.6rem;
-    /* Verhindert, dass der Hero schrumpft */
     flex-shrink: 0;
 }
 
@@ -211,13 +209,14 @@ body.overlay-open {
 
 /* Unterer Inhaltsbereich mit Tabs und Details */
 .pokemon-overlay__details {
-    padding: 1.25rem 2rem 2rem;
+    padding: 0 2rem 2rem;
     background: transparent;
     background-image: inherit;
-    flex: 0 0 360px;
-    height: 360px;
+    flex: 1 1 360px;
     max-height: 360px;
+    min-height: 0;
     overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
 }
 
 /* Abstand zwischen aufeinanderfolgenden Detailzeilen */
@@ -234,24 +233,24 @@ body.overlay-open {
     gap: 0.5rem;
 }
 
+/* Quadratische Darstellung der Evolutionssprites */
 .pokemon-evolution__image {
     width: 96px;
-    /* Quadratische Darstellung der Evolutionssprites */
     height: 96px;
     object-fit: contain;
     filter: drop-shadow(0 12px 20px rgba(15, 23, 42, 0.18));
 }
 
+/* Beschriftung unterhalb des Evolutionssprites */
 .pokemon-evolution__label {
-    /* Beschriftung unterhalb des Evolutionssprites */
     font-weight: 600;
     font-size: 0.85rem;
     color: #0f172a;
     text-transform: uppercase;
 }
 
+/* Pfeile zwischen den Evolutionsstufen */
 .pokemon-evolution__arrow svg {
-    /* Pfeile zwischen den Evolutionsstufen */
     color: #475569;
 }
 
@@ -276,9 +275,44 @@ body.overlay-open {
     flex: 1;
 }
 
+@media (max-width: 850px) {
+    .pokemon-overlay__section-title {
+        font-size: 0.8rem;
+    }
+
+    .pokemon-overlay__detail-label,
+    .pokemon-overlay__detail-value,
+    .pokemon-overlay__details .list-unstyled.small {
+        font-size: 0.95rem;
+    }
+}
+
 /* Abstand rund um die Tab-Navigation */
 .pokemon-overlay__tabs {
     margin-bottom: 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 1.25rem 0 0.75rem;
+    background: inherit;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+}
+
+/* Tab-Navigation richtet Links flexibel aus */
+.pokemon-overlay__tabs .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+/* Einzelne Tab-Container für zentrierte Buttons */
+.pokemon-overlay__tabs .nav-item {
+    flex: 1 1 180px;
+    max-width: 220px;
+    display: flex;
+    justify-content: center;
 }
 
 /* Basisstil der Tab-Buttons */
@@ -292,6 +326,24 @@ body.overlay-open {
     border: none;
     box-shadow: none;
     transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    width: 100%;
+}
+
+@media (max-width: 850px) {
+    .pokemon-overlay__tabs .nav {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .pokemon-overlay__tabs .nav-item {
+        flex: 1 1 auto;
+        max-width: none;
+    }
+
+    .pokemon-overlay__tabs .nav-link {
+        font-size: 1rem;
+        padding: 0.35rem 0.75rem;
+    }
 }
 
 /* Hover- und Fokusstate der Tabs */
@@ -555,6 +607,66 @@ body.overlay-open {
     }
 }
 
+@media (max-width: 490px) {
+    .pokemon-overlay__tabs .nav {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pokemon-overlay__tabs .nav-item {
+        flex: 1 1 150px;
+        max-width: 200px;
+    }
+
+    .pokemon-overlay__tabs .nav-link {
+        font-size: 0.95rem;
+        padding-bottom: 0.3rem;
+    }
+
+    .pokemon-overlay__section-title {
+        font-size: 0.75rem;
+    }
+
+    .pokemon-overlay__detail-label,
+    .pokemon-overlay__detail-value,
+    .pokemon-overlay__details .list-unstyled.small {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 440px) {
+    .pokemon-overlay__tabs .nav-item {
+        flex: 1 1 calc(50% - 0.5rem);
+        max-width: calc(50% - 0.5rem);
+    }
+}
+
+@media (max-width: 403px) {
+    .pokemon-overlay__tabs .nav {
+        gap: 0.4rem;
+    }
+
+    .pokemon-overlay__tabs .nav-item {
+        flex: 1 1 calc(50% - 0.4rem);
+        max-width: calc(50% - 0.4rem);
+    }
+
+    .pokemon-overlay__tabs .nav-link {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.4rem;
+    }
+
+    .pokemon-overlay__section-title {
+        font-size: 0.7rem;
+    }
+
+    .pokemon-overlay__detail-label,
+    .pokemon-overlay__detail-value,
+    .pokemon-overlay__details .list-unstyled.small {
+        font-size: 0.85rem;
+    }
+}
+
 @media (max-width: 992px) {
     .pokemon-overlay__frame {
         flex-direction: column;
@@ -589,10 +701,10 @@ body.overlay-open {
     }
 
     .pokemon-overlay__details {
-        padding: 0.9rem 1.25rem 1.25rem;
-        flex-basis: 320px;
-        height: 320px;
+        padding: 0 1.25rem 1.25rem;
+        flex: 1 1 320px;
         max-height: 320px;
+        min-height: 0;
     }
 }
 
@@ -614,10 +726,10 @@ body.overlay-open {
         gap: 0.35rem;
     }
     .pokemon-overlay__details {
-        padding: 0.75rem 1rem 1rem;
-        flex-basis: 280px;
-        height: 280px;
+        padding: 0 1rem 1rem;
+        flex: 1 1 280px;
         max-height: 280px;
+        min-height: 0;
     }
     .pokemon-overlay__tabs .nav-link {
         font-size: 1rem;
@@ -646,20 +758,21 @@ body.overlay-open {
         font-size: 0.95rem;
     }
     .pokemon-overlay__details {
-        flex-basis: 240px;
-        height: 240px;
+        flex: 1 1 240px;
         max-height: 240px;
+        min-height: 0;
     }
 }
 
-/* Querformat-Layout für sehr flache Bildschirme */
-@media (max-height: 480px) {
+/* Querformat-Layout für flache Bildschirme */
+@media (max-height: 540px) {
     .pokemon-overlay-root {
         padding: 1rem;
     }
 
     .pokemon-overlay__card {
         flex-direction: row;
+        height: calc(100vh - 2rem);
         max-height: calc(100vh - 2rem);
     }
 
@@ -679,9 +792,9 @@ body.overlay-open {
     .pokemon-overlay__details {
         flex: 1 1 auto;
         overflow-y: auto;
-        padding: 1.5rem;
-        height: auto;
-        max-height: none;
+        padding: 0 1.5rem 1.5rem;
+        height: 100%;
+        max-height: 100%;
     }
 
     .pokemon-overlay__close {

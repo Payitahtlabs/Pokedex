@@ -10,7 +10,7 @@ function createPokemonCard(pokemon) {
 				<div class="card-body text-center">
 					<span class="pokemon-card__id badge bg-light text-dark">#${idLabel}</span>
 					<img class="img-fluid mb-3" src="${image}" alt="${name}" loading="lazy" />
-					<h2 class="h5 fw-semibold mb-1">${name}</h2>
+					<h2 class="h6 fw-semibold mb-1" style="font-size: 0.85rem;">${name}</h2>
 					<div class="pokemon-card__types mb-0">${badges}</div>
 				</div>
 			</article>
@@ -61,10 +61,12 @@ function buildOverlayHero(info) {
 
 // Baut die Tab-Navigation samt Inhalte für das Overlay.
 function buildOverlayDetails(info) {
-	const tabs = buildOverlayTabNav(info) + buildOverlayTabContent(info);
+	const nav = buildOverlayTabNav(info);
+	const content = buildOverlayTabContent(info);
 	return `
 		<div class="pokemon-overlay__details">
-			<div class="pokemon-overlay__tabs">${tabs}</div>
+			<div class="pokemon-overlay__tabs">${nav}</div>
+			${content}
 		</div>
 	`;
 }
@@ -216,7 +218,7 @@ function composeMoveRow(move) {
 	return `
 		<tr>
 			<td>
-				<div class="fw-semibold">${move.name || 'Unknown'}</div>
+				<div class="fw-semibold" style="font-size: 0.85rem;">${move.name || 'Unknown'}</div>
 			</td>
 			<td>${typeBadge}</td>
 			<td><small class="text-muted">${truncateEffectText(move.effect)}</small></td>
@@ -267,7 +269,7 @@ function composeStatRow(entry) {
 	const barClass = value >= 60 ? 'bg-success' : 'bg-danger';
 	return `
 		<div class="pokemon-overlay__stat d-flex align-items-center mb-2">
-			<span class="pokemon-overlay__stat-label text-uppercase small fw-semibold me-3">${label}</span>
+			<span class="pokemon-overlay__stat-label text-uppercase small fw-semibold me-3" style="font-size: 0.85rem;">${label}</span>
 			<div class="progress flex-grow-1" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="${limiter}" aria-valuenow="${value}">
 				<div class="progress-bar ${barClass}" style="width: ${width}%">${value}</div>
 			</div>
@@ -283,7 +285,7 @@ function composeTotalRow(stats) {
 	const width = Math.min(100, Math.round((total / maxTotal) * 100));
 	return `
 		<div class="pokemon-overlay__stat pokemon-overlay__stat--total d-flex align-items-center mb-0">
-			<span class="pokemon-overlay__stat-label text-uppercase small fw-semibold me-3">Total</span>
+			<span class="pokemon-overlay__stat-label text-uppercase small fw-semibold me-3" style="font-size: 0.85rem;">Total</span>
 			<div class="progress flex-grow-1" role="progressbar" aria-label="Total" aria-valuemin="0" aria-valuemax="${maxTotal}" aria-valuenow="${total}">
 				<div class="progress-bar bg-primary" style="width: ${width}%">${total}</div>
 			</div>
