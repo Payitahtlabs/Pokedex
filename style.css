@@ -493,6 +493,7 @@ body.overlay-open {
 .pokemon-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    cursor: pointer;
 }
 
 /* halbtransparente Overlay-Fläche für Farbverlauf */

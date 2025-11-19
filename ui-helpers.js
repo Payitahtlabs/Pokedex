@@ -9,20 +9,13 @@ function showErrorBanner(message) {
 }
 
 // Blendet den Fehlerbanner wieder aus.
-function hideErrorBanner() {
-	if (!errorBanner) return;
-	errorBanner.classList.add('d-none');
-}
+const hideErrorBanner = () => errorBanner && errorBanner.classList.add('d-none');
 
 // Aktiviert oder deaktiviert den Mehr-Laden-Button.
-function setButtonDisabled(state) {
-	loadMoreButton.disabled = state;
-}
+const setButtonDisabled = (state) => loadMoreButton.disabled = state;
 
 // Aktualisiert den Text des Mehr-Laden-Buttons.
-function setButtonText(text) {
-	loadMoreButton.textContent = text;
-}
+const setButtonText = (text) => loadMoreButton.textContent = text;
 
 // Aktualisiert und zeigt die Ladeanzeige an.
 function showLoadingIndicator() {
@@ -32,9 +25,7 @@ function showLoadingIndicator() {
 }
 
 // Blendet die Ladeanzeige aus.
-function hideLoadingIndicator() {
-	loadingIndicator.classList.add('d-none');
-}
+const hideLoadingIndicator = () => loadingIndicator.classList.add('d-none');
 
 // Zeigt den Hinweis, dass keine Pokémon gefunden wurden.
 function showNoResultsMessage() {

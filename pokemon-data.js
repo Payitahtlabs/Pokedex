@@ -35,7 +35,7 @@ const moveDetailCache = {};
 async function loadFullPokemonCatalog() {
 	if (fullPokemonCatalog.length) return fullPokemonCatalog;
 	if (!fullCatalogPromise) {
-		fullCatalogPromise = fetchPokemonList(0, fullCatalogLimit);
+		fullCatalogPromise = fetchPokemonList(0, FULL_CATALOG_LIMIT);
 	}
 	try {
 		fullPokemonCatalog = await fullCatalogPromise;

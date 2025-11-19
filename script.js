@@ -1,5 +1,5 @@
 // --- Globale Statusvariablen für DOM-Verweise und Laufzeitdaten ---
-let grid;
+let pokemonGrid;
 let loadMoreButton;
 let loadingIndicator;
 let searchInput;
@@ -24,19 +24,19 @@ let currentOverlayTab = 'about';
 // --- API- und UI-Konfiguration ---
 const POKEMON_LIMIT = 20;
 const API_URL = 'https://pokeapi.co/api/v2/pokemon';
-const loadButtonLabel = 'Load more Pokémon';
-const loadingButtonLabel = 'Loading Pokémon...';
-const noMorePokemonLabel = 'No more Pokémon';
-const minSearchLength = 3;
-const fullCatalogLimit = 2000;
-const searchDebounceDelay = 280;
+const LOAD_BUTTON_LABEL = 'Load more Pokémon';
+const LOADING_BUTTON_LABEL = 'Loading Pokémon...';
+const NO_MORE_POKEMON_LABEL = 'No more Pokémon';
+const MIN_SEARCH_LENGTH = 3;
+const FULL_CATALOG_LIMIT = 2000;
+const SEARCH_DEBOUNCE_DELAY = 280;
 
 initPokedex();
 
 // Richtet Grundelemente und Ereignisse ein und startet den Erst-Ladevorgang.
 function initPokedex() {
 	assignCoreElements();
-	if (!grid || !loadMoreButton || !loadingIndicator) return;
+	if (!pokemonGrid || !loadMoreButton || !loadingIndicator) return;
 	wireUiHandlers();
 	setupOverlaySupport();
 	hideErrorBanner();
@@ -46,7 +46,7 @@ function initPokedex() {
 
 // Sammelt und speichert die wichtigsten DOM-Elemente der Anwendung.
 function assignCoreElements() {
-	grid = document.getElementById('pokemon-grid');
+	pokemonGrid = document.getElementById('pokemon-grid');
 	loadMoreButton = document.getElementById('loadMoreButton');
 	loadingIndicator = document.getElementById('loading-indicator');
 	searchInput = document.getElementById('searchInput');
@@ -61,7 +61,7 @@ function wireUiHandlers() {
 	if (searchInput) searchInput.oninput = handleSearchInput;
 	if (retryButton) retryButton.onclick = handleRetryClick;
 	loadMoreButton.onclick = loadNextBatch;
-	if (grid) grid.onclick = handlePokemonCardClick;
+	if (pokemonGrid) pokemonGrid.onclick = handlePokemonCardClick;
 }
 
 // Lädt den nächsten Pokémon-Satz und kümmert sich um Ladezustand sowie Fehler.
@@ -85,7 +85,7 @@ function startLoadingState() {
 	hideNoResultsMessage();
 	isLoading = true;
 	setButtonDisabled(true);
-	setButtonText(loadingButtonLabel);
+	setButtonText(LOADING_BUTTON_LABEL);
 	showLoadingIndicator();
 }
 
@@ -94,7 +94,7 @@ function stopLoadingState() {
 	hideLoadingIndicator();
 	if (hasMorePokemon) {
 		setButtonDisabled(false);
-		setButtonText(loadButtonLabel);
+		setButtonText(LOAD_BUTTON_LABEL);
 	}
 	isLoading = false;
 }
@@ -112,15 +112,15 @@ function debounceSearch(rawTerm) {
 	if (searchDelayToken) window.clearTimeout(searchDelayToken);
 	searchDelayToken = window.setTimeout(function triggerSearch() {
 		applySearch(rawTerm);
-	}, searchDebounceDelay);
+	}, SEARCH_DEBOUNCE_DELAY);
 }
 
 // Filtert Pokémon nach Namen und rendert passende Karten.
 async function applySearch(rawTerm) {
-	if (!grid) return;
+	if (!pokemonGrid) return;
 	const term = normalizeSearchTerm(rawTerm);
 	activeSearchTerm = term;
-	if (!term || term.length < minSearchLength) return resetSearchToCached(term);
+	if (!term || term.length < MIN_SEARCH_LENGTH) return resetSearchToCached(term);
 	try {
 		const filtered = await filterPokemonByName(term);
 		if (activeSearchTerm !== term) return;
@@ -133,14 +133,14 @@ async function applySearch(rawTerm) {
 // Setzt die Ergebnisliste auf die vorhandene Cache-Auswahl zurück.
 function resetSearchToCached(term) {
 	const baseList = paginatedPokemon.length ? paginatedPokemon : cachedPokemon;
-	renderPokemonCards(grid, baseList, true);
+	renderPokemonCards(pokemonGrid, baseList, true);
 	updateLoadMoreVisibility(term);
 	hideNoResultsMessage();
 }
 
 // Rendert Treffer, aktualisiert Button und blendet Hinweise passend ein.
 function renderSearchResults(term, list) {
-	renderPokemonCards(grid, list, true);
+	renderPokemonCards(pokemonGrid, list, true);
 	updateLoadMoreVisibility(term);
 	syncNoResultsMessage(term, list);
 }
@@ -159,7 +159,7 @@ function normalizeSearchTerm(term) {
 
 // Liefert gecachte Pokémon oder lädt fehlende Treffer nach.
 async function filterPokemonByName(term) {
-	if (!term || term.length < minSearchLength) return cachedPokemon;
+	if (!term || term.length < MIN_SEARCH_LENGTH) return cachedPokemon;
 	const catalog = await loadFullPokemonCatalog();
 	const matches = collectCatalogMatches(catalog, term);
 	if (!matches.length) return [];
@@ -201,13 +201,13 @@ function sortPokemonById(list) {
 // Blendet den Mehr-Laden-Button während einer aktiven Suche aus.
 function updateLoadMoreVisibility(term) {
 	if (!loadMoreButton) return;
-	const isSearching = term && term.length >= minSearchLength;
+	const isSearching = term && term.length >= MIN_SEARCH_LENGTH;
 	loadMoreButton.style.display = isSearching ? 'none' : '';
 }
 
 // Schaltet die "Keine Treffer"-Hinweisfläche passend zur Suche um.
 function syncNoResultsMessage(term, results) {
-	const isActiveSearch = term && term.length >= minSearchLength;
+	const isActiveSearch = term && term.length >= MIN_SEARCH_LENGTH;
 	if (!isActiveSearch) {
 		hideNoResultsMessage();
 		return;
@@ -222,12 +222,12 @@ function handlePokemonBatch(pokemon) {
 	offset += pokemon.length;
 	if (newEntries.length) {
 		paginatedPokemon = paginatedPokemon.concat(newEntries);
-		renderPokemonCards(grid, newEntries, false);
+		renderPokemonCards(pokemonGrid, newEntries, false);
 	}
 	if (pokemon.length < POKEMON_LIMIT) {
 		hasMorePokemon = false;
 		setButtonDisabled(true);
-		setButtonText(noMorePokemonLabel);
+		setButtonText(NO_MORE_POKEMON_LABEL);
 	}
 }
 
@@ -279,7 +279,7 @@ function handlePokemonCardClick(event) {
 	const origin = event.target instanceof Element ? event.target : null;
 	if (!origin) return;
 	const card = origin.closest('.pokemon-card');
-	if (!card || !grid || !grid.contains(card)) return;
+	if (!card || !pokemonGrid || !pokemonGrid.contains(card)) return;
 	const idValue = Number(card.getAttribute('data-pokemon-id'));
 	if (!idValue) return;
 	const index = findPokemonIndexInDisplay(idValue);
