@@ -117,17 +117,29 @@ function debounceSearch(rawTerm) {
 
 // Filtert Pokémon nach Namen und rendert passende Karten.
 async function applySearch(rawTerm) {
-	if (!pokemonGrid) return;
-	const term = normalizeSearchTerm(rawTerm);
-	activeSearchTerm = term;
-	if (!term || term.length < MIN_SEARCH_LENGTH) return resetSearchToCached(term);
-	try {
-		const filtered = await filterPokemonByName(term);
-		if (activeSearchTerm !== term) return;
-		renderSearchResults(term, filtered);
-	} catch (error) {
-		handleSearchError(error);
-	}
+    if (!pokemonGrid) return;
+    const term = normalizeSearchTerm(rawTerm);
+    activeSearchTerm = term;
+
+    // 1. Wenn die Eingabe komplett leer ist, Zustand zurücksetzen.
+    if (!term) {
+        return resetSearchToCached(term);
+    } 
+
+    // 2. Wenn die Eingabe zu kurz ist, aber NICHT leer, einfach abbrechen (passiv bleiben).
+    // Die Seite bleibt im vorherigen Zustand, es wird nichts gerendert oder geladen.
+    if (term.length < MIN_SEARCH_LENGTH) {
+        return; 
+    }
+    
+    // -> Nur wenn der Suchbegriff lang genug ist, wird die Suche gestartet.
+    try {
+        const filtered = await filterPokemonByName(term);
+        if (activeSearchTerm !== term) return;
+        renderSearchResults(term, filtered);
+    } catch (error) {
+        handleSearchError(error);
+    }
 }
 
 // Setzt die Ergebnisliste auf die vorhandene Cache-Auswahl zurück.
@@ -299,11 +311,12 @@ function findPokemonIndexInDisplay(id) {
 
 // Öffnet das Overlay und sperrt den Hintergrund.
 function openPokemonOverlay(index) {
-	if (!renderOverlayContent(index)) return;
 	const root = ensureOverlayRoot();
 	if (!root) return;
+	if (!renderOverlayContent(index)) return;
 	root.classList.add('is-active');
 	lockBodyScroll(true);
+	queueOverlayRender();
 }
 
 // Rendert den Overlay-Inhalt und übernimmt den zuletzt aktiven Tab.
@@ -344,6 +357,7 @@ function closePokemonOverlay() {
 function changeOverlayPokemon(step) {
 	const nextIndex = currentOverlayIndex + step;
 	if (!renderOverlayContent(nextIndex)) return;
+	queueOverlayRender();
 }
 
 // Reagiert auf Überlagerungs-Klicks, inklusive Navigation und Tab-Wechsel.
@@ -389,11 +403,30 @@ function handleOverlayNavigation(origin) {
 	return false;
 }
 
+// Plant eine Neu-Renderung des Overlays nach Datenaktualisierung ein.
+function queueOverlayRender() {
+	if (currentOverlayIndex === -1) return;
+	const pokemon = currentDisplayList[currentOverlayIndex];
+	if (!pokemon) return;
+	const activeTab = currentOverlayTab;
+	ensurePokemonDataForTab(pokemon, activeTab)
+		.then(() => {
+			renderOverlayContent(currentOverlayIndex);
+		})
+		.catch((error) => {
+			console.error('Error updating overlay tab:', error);
+		});
+}
+
 // Speichert den geklickten Tab-Schlüssel, falls vorhanden.
 function handleOverlayTab(origin) {
 	const tabButton = origin.closest('.pokemon-overlay__tabs .nav-link');
 	if (!tabButton || !tabButton.dataset) return false;
-	currentOverlayTab = validateOverlayTab(tabButton.dataset.tabKey);
+	const nextTab = validateOverlayTab(tabButton.dataset.tabKey);
+	if (currentOverlayTab === nextTab) return true;
+	currentOverlayTab = nextTab;
+	renderOverlayContent(currentOverlayIndex);
+	queueOverlayRender();
 	return true;
 }
 

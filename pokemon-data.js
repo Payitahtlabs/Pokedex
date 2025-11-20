@@ -64,14 +64,111 @@ async function loadPokemonDetails(pokemonList) {
 	return Promise.all(detailPromises);
 }
 
+// Stellt sicher, dass die für einen Tab benötigten Daten verfügbar sind.
+async function ensurePokemonDataForTab(pokemon, tabKey) {
+	if (!pokemon) return;
+	const key = validateOverlayTabKey(tabKey);
+	switch (key) {
+		case 'about':
+			await ensurePokemonAbout(pokemon);
+			break;
+		case 'stats':
+			await ensurePokemonStats(pokemon);
+			break;
+		case 'evolution':
+			await ensurePokemonEvolution(pokemon);
+			break;
+		case 'moves':
+			await ensurePokemonMoves(pokemon);
+			break;
+		default:
+			break;
+	}
+}
+
+// Stellt sicher, dass "About"-Daten (Spezies, Gender etc.) vorliegen.
+async function ensurePokemonAbout(pokemon) {
+	if (!pokemon || pokemon.__aboutLoaded) return;
+	if (pokemon.__aboutPromise) return pokemon.__aboutPromise;
+	pokemon.__aboutPromise = (async function loadAbout() {
+		if (!pokemon.__speciesUrl) {
+			pokemon.__aboutLoaded = true;
+			return;
+		}
+		const species = await fetchPokemonSpecies(pokemon.__speciesUrl);
+		pokemon.__speciesData = species;
+		pokemon.species = formatSpeciesName(species);
+		pokemon.gender = formatGenderRate(species);
+		pokemon.eggGroups = formatEggGroups(species);
+		pokemon.hatchInfo = formatHatchInfo(species);
+		pokemon.__aboutLoaded = true;
+	})();
+	try {
+		await pokemon.__aboutPromise;
+	} finally {
+		pokemon.__aboutPromise = null;
+	}
+}
+
+// Berechnet die Basiswerte, sobald sie benötigt werden.
+async function ensurePokemonStats(pokemon) {
+	if (!pokemon || pokemon.__statsLoaded) return;
+	pokemon.stats = extractPokemonStats(pokemon.__rawStats);
+	pokemon.__statsLoaded = true;
+	pokemon.__rawStats = [];
+}
+
+// Lädt die Evolutionskette bei Bedarf nach.
+async function ensurePokemonEvolution(pokemon) {
+	if (!pokemon || pokemon.__evolutionLoaded) return;
+	if (pokemon.__evolutionPromise) return pokemon.__evolutionPromise;
+	pokemon.__evolutionPromise = (async function loadEvolution() {
+		await ensurePokemonAbout(pokemon);
+		const chain = await fetchEvolutionChain(pokemon.__speciesData);
+		pokemon.evolutions = buildEvolutionEntries(chain);
+		pokemon.__evolutionLoaded = true;
+	})();
+	try {
+		await pokemon.__evolutionPromise;
+	} finally {
+		pokemon.__evolutionPromise = null;
+	}
+}
+
+// Lädt Move-Details, sobald der Tab geöffnet wird.
+async function ensurePokemonMoves(pokemon) {
+	if (!pokemon || pokemon.__movesLoaded) return;
+	if (pokemon.__movesPromise) return pokemon.__movesPromise;
+	const rawMoves = Array.isArray(pokemon.__rawMoves) ? pokemon.__rawMoves : [];
+	if (!rawMoves.length) {
+		pokemon.moves = [];
+		pokemon.__movesLoaded = true;
+		return;
+	}
+	pokemon.__movesPromise = (async function loadMoves() {
+		pokemon.moves = await buildFeaturedMoves(rawMoves);
+		pokemon.__movesLoaded = true;
+		pokemon.__rawMoves = [];
+	})();
+	try {
+		await pokemon.__movesPromise;
+	} finally {
+		pokemon.__movesPromise = null;
+	}
+}
+
+// Validiert den Tab-Schlüssel und fällt bei unbekannten Werten auf "about" zurück.
+function validateOverlayTabKey(key) {
+	if (key === 'about' || key === 'stats' || key === 'evolution' || key === 'moves') return key;
+	return 'about';
+}
+
 // Ruft Detaildaten ab und vereinfacht sie für eine Karte.
 async function fetchPokemonDetails(url) {
 	const response = await fetch(url);
 	if (!response.ok) throw new Error('Detail-Code ' + response.status);
 	const data = await response.json();
-	const species = await fetchPokemonSpecies(data && data.species ? data.species.url : null);
-	const chain = await fetchEvolutionChain(species);
-	return await simplifyPokemonData(data, species, chain);
+	return await simplifyPokemonData(data);
 }
 
 // Holt ergänzende Speziesdaten für Zuchtinformationen.
@@ -103,13 +200,23 @@ async function fetchEvolutionChain(species) {
 }
 
 // Wandelt rohe API-Daten in das vereinfachte Kartenmodell um.
-async function simplifyPokemonData(data, species, chain) {
+async function simplifyPokemonData(data) {
 	const image = selectPokemonImage(data);
 	const types = extractPokemonTypes(data);
 	const mainType = types.length ? types[0].toLowerCase() : 'default';
 	const entry = buildPokemonBasics(data, image, types);
-	addPokemonExtras(entry, species, mainType, chain);
-	entry.moves = await buildFeaturedMoves(data.moves);
+	addPokemonExtras(entry, mainType);
+	entry.__speciesUrl = data && data.species && data.species.url ? data.species.url : null;
+	entry.__rawStats = Array.isArray(data && data.stats) ? data.stats : [];
+	entry.__rawMoves = Array.isArray(data && data.moves) ? data.moves : [];
+	entry.__speciesData = null;
+	entry.__aboutPromise = null;
+	entry.__evolutionPromise = null;
+	entry.__movesPromise = null;
+	entry.__aboutLoaded = false;
+	entry.__statsLoaded = false;
+	entry.__evolutionLoaded = false;
+	entry.__movesLoaded = false;
 	return entry;
 }
 
@@ -123,19 +230,15 @@ function buildPokemonBasics(data, image, types) {
 		height: formatHeight(data.height),
 		types: types,
 		abilities: extractPokemonAbilities(data),
-		stats: extractPokemonStats(data.stats),
+		stats: [],
 		evolutions: [],
+		moves: [],
 	};
 }
 
-// Ergänzt Zucht- und Hintergrunddaten.
-function addPokemonExtras(entry, species, mainType, chain) {
-	entry.species = formatSpeciesName(species);
-	entry.gender = formatGenderRate(species);
-	entry.eggGroups = formatEggGroups(species);
-	entry.hatchInfo = formatHatchInfo(species);
+// Ergänzt Hintergrunddaten und legt Defaultwerte für zusätzliche Bereiche an.
+function addPokemonExtras(entry, mainType) {
 	entry.background = buildCardBackground(resolveTypeColor(mainType));
-	entry.evolutions = buildEvolutionEntries(chain);
 }
 
 // Extrahiert eine kuratierte Auswahlliste an Moves inklusive Detaildaten.
