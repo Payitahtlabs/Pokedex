@@ -5,7 +5,7 @@ function createPokemonCard(pokemon) {
 	const idLabel = String(id).padStart(3, '0');
 
 	return `
-		<div class="col">
+		<li class="col">
 			<article class="pokemon-card card h-100 border-0 shadow-sm" data-pokemon-id="${id}" style="--card-bg: ${background};">
 				<div class="card-body text-center">
 					<span class="pokemon-card__id badge bg-light text-dark">#${idLabel}</span>
@@ -14,7 +14,7 @@ function createPokemonCard(pokemon) {
 					<div class="pokemon-card__types mb-0">${badges}</div>
 				</div>
 			</article>
-		</div>
+		</li>
 	`;
 }
 

@@ -29,7 +29,7 @@ const STAT_LABEL_MAP = {
 	speed: 'Speed',
 };
 const FEATURED_MOVE_LIMIT = 6;
-const moveDetailCache = {};
+const MOVE_DETAIL_CACHE = {};
 
 // Holt den kompletten Poké-Katalog oder stößt ihn bei Bedarf an.
 async function loadFullPokemonCatalog() {
@@ -321,13 +321,13 @@ function composeMoveMeta(detail) {
 // Lädt Move-Details einmalig und erstellt ein vereinfachtes Objekt.
 async function loadMoveSummary(reference) {
 	if (!reference || !reference.url) return null;
-	if (moveDetailCache[reference.url]) return moveDetailCache[reference.url];
+	if (MOVE_DETAIL_CACHE[reference.url]) return MOVE_DETAIL_CACHE[reference.url];
 	try {
 		const response = await fetch(reference.url);
 		if (!response.ok) throw new Error('Move-Code ' + response.status);
 		const data = await response.json();
 		const summary = simplifyMoveEntry(data);
-		moveDetailCache[reference.url] = summary;
+		MOVE_DETAIL_CACHE[reference.url] = summary;
 		return summary;
 	} catch (error) {
 		console.warn('Fehler beim Laden eines Moves:', error);

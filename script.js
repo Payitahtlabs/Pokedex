@@ -58,7 +58,7 @@ function assignCoreElements() {
 
 // Verknüpft Eingabefelder, Buttons und Retry-Aktionen mit ihren Handlern.
 function wireUiHandlers() {
-	if (searchInput) searchInput.oninput = handleSearchInput;
+	if (searchInput) searchInput.addEventListener('input', handleSearchInput);
 	if (retryButton) retryButton.onclick = handleRetryClick;
 	loadMoreButton.onclick = loadNextBatch;
 	if (pokemonGrid) pokemonGrid.onclick = handlePokemonCardClick;

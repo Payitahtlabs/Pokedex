@@ -20,7 +20,7 @@ const setButtonText = (text) => loadMoreButton.textContent = text;
 // Aktualisiert und zeigt die Ladeanzeige an.
 function showLoadingIndicator() {
 	const message = loadingIndicator.querySelector('p');
-	if (message) message.textContent = 'Pokémon werden geladen...';
+	if (message) message.textContent = LOADING_BUTTON_LABEL;
 	loadingIndicator.classList.remove('d-none');
 }
 
