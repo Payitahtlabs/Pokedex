@@ -367,10 +367,12 @@ function handleOverlayInteraction(event) {
 	if (currentOverlayIndex === -1) return;
 	const origin = getInteractionTarget(event);
 	if (!origin) return;
-	if (shouldCloseOverlay(origin)) return closePokemonOverlay();
+	const navHitArea = isWithinNavHitArea(event);
 	if (handleOverlayNavigation(origin)) return;
+	if (navHitArea) return;
+	if (shouldCloseOverlay(origin)) return closePokemonOverlay();
 	if (handleOverlayTab(origin)) return;
-	if (isOutsideOverlay(origin)) closePokemonOverlay();
+	if (isOutsideOverlay(origin, event)) closePokemonOverlay();
 }
 
 // Prüft, ob der Tab-Key gültig ist und liefert einen sicheren Fallback.
@@ -433,10 +435,30 @@ function handleOverlayTab(origin) {
 }
 
 // Prüft, ob der Klick außerhalb der Karte erfolgte.
-function isOutsideOverlay(origin) {
+function isOutsideOverlay(origin, event) {
 	const insideCard = origin.closest('.pokemon-overlay__card');
 	const insideNav = origin.closest('.pokemon-overlay__nav');
-	return !insideCard && !insideNav;
+	const insideNavHitbox = isWithinNavHitArea(event);
+	return !insideCard && !insideNav && !insideNavHitbox;
+}
+
+function isWithinNavHitArea(event) {
+	if (!overlayRoot || !event || typeof event.clientX !== 'number' || typeof event.clientY !== 'number') return false;
+	const navButtons = overlayRoot.querySelectorAll('.pokemon-overlay__nav');
+	for (let i = 0; i < navButtons.length; i += 1) {
+		const button = navButtons[i];
+		if (!button) continue;
+		const rect = button.getBoundingClientRect();
+		if (
+			event.clientX >= rect.left &&
+			event.clientX <= rect.right &&
+			event.clientY >= rect.top &&
+			event.clientY <= rect.bottom
+		) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // Ermöglicht ESC-Schließen und Pfeiltasten-Steuerung.
