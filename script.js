@@ -329,7 +329,9 @@ function renderOverlayContent(index) {
 	currentOverlayIndex = index;
 	const activeTab = validateOverlayTab(currentOverlayTab);
 	currentOverlayTab = activeTab;
-	root.innerHTML = window.PokedexTemplates.createPokemonOverlay(pokemon, activeTab);
+	const viewData = typeof preparePokemonOverlayView === 'function' ? preparePokemonOverlayView(pokemon, activeTab) : null;
+	if (!viewData) return false;
+	root.innerHTML = window.PokedexTemplates.createPokemonOverlay(viewData);
 	syncOverlayNavState();
 	return true;
 }
